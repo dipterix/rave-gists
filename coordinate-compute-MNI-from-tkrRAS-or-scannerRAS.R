@@ -30,20 +30,28 @@
 #'     * All other cases will create a `.csv` file
 #' @param save_to_subject whether to alter the current subject's electrodes.csv
 #'   located at `meta/electrodes.csv`
+#' END OF DOC
+NULL
 
 # ---- Global inputs --------------------------------------------------------
 
-subject <- "demo/DemoSubject"
-
-input_filepath <- NULL
-# input_filepath <- "~/Dropbox (PENN Neurotrauma)/RAVE/Samples/data/demo/DemoSubject/rave/meta/electrodes.csv"
-
-output_filepath <- tempfile(fileext = ".csv")
-
-# Do not mess with existing electrodes.csv
-save_to_subject <- FALSE
+# # Uncomment the following variables if you want to set them and run manually
+# 
+# subject <- "demo/DemoSubject"
+# input_filepath <- NULL
+# 
+# # input_filepath <- "~/Dropbox (PENN Neurotrauma)/RAVE/Samples/data/demo/DemoSubject/rave/meta/electrodes.csv"
+# output_filepath <- tempfile(fileext = ".csv")
+# 
+# # Do not mess with existing electrodes.csv
+# save_to_subject <- FALSE
 
 # ---- Code -----------------------------------------------------------------
+
+# initialize variables
+`%?<-%` <- dipsaus::`%?<-%`
+output_filepath %?<-% NULL
+save_to_subject %?<-% FALSE
 
 subject_instance <- raveio::as_rave_subject( subject )
 
