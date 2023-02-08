@@ -39,7 +39,7 @@
 #'     snippet <- raveio::load_snippet(topic); snippet
 #'     snippet(param1 = ..., param2 = ...)
 #'  
-#' `#' END OF DOC`
+#' #' END OF DOC`
 NULL
 
 # ---- Variable Section --------------------------------------------------------
