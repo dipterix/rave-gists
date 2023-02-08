@@ -12,9 +12,9 @@ Most scripts in this repository can be directly sourced into `R`. [[This example
 
 #### Format conversion
 
-* `fst` to `HDF5` [_fileformat-convert-fst-to-hdf5_ [link](fileformat-convert-fst-to-hdf5.R)]
+* `fst` to `HDF5` [[link](fileformat-convert-fst-to-hdf5.R)] [topic: fileformat-convert-fst-to-hdf5]
 
 #### Electrode localization, coordinates
 
-* Convert electrode coordinates: from `tkrRAS` or `scannerRAS` to MNI305 or MNI152 [_coordinate-compute-MNI-from-tkrRAS-or-scannerRAS_ [link](coordinate-compute-MNI-from-tkrRAS-or-scannerRAS.R)]
+* Convert electrode coordinates: from `tkrRAS` or `scannerRAS` to MNI305 or MNI152 [[link](coordinate-compute-MNI-from-tkrRAS-or-scannerRAS.R)] [topic: coordinate-compute-MNI-from-tkrRAS-or-scannerRAS] 
 

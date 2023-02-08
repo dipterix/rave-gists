@@ -1,7 +1,8 @@
 #' @author Zhengjia Wang
 #' @date Feb 08, 2023
 #' @license Apache-2.0
-#'
+#' 
+#' 
 #' @title Imports electrode table (in csv format) and outputs MNI coordinates
 #' 
 #' @param subject character representing RAVE project+subject (e.g. `demo/DemoSubject`)
@@ -18,8 +19,8 @@
 #'     1         -11.2   16.3    13.9    LA1
 #'     2 ...
 #'
-#'   (example 2, using tkrRAS coordinates)
-#'     Electrode Coord_x Coord_y Coord_z Label
+#'   (example 2, using scannerRAS coordinates)
+#'     Electrode T1R     T1A     T1S     Label
 #'     1         -11.2   16.3    13.9    LA1
 #'     2 ...
 #'
