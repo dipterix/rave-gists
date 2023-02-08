@@ -1,9 +1,10 @@
-#' This file converts RAVE `.fst` file to common format `.hdf5`
 #' @author Zhengjia Wang
 #' @date Feb 08, 2023
 #' @license Apache-2.0
 #' 
-#' @param hdf5_path path to the `.fst` file
+#' @title This file converts RAVE `.fst` file to common format `.hdf5`
+#' 
+#' @param fst_path path to the `.fst` file
 #' @param hdf5_path path to 'HDF5' file; if file exists prior to conversion, 
 #'   then that file will be erased first. Please make sure the files are 
 #'   backed up.

@@ -1,8 +1,9 @@
-#' This file imports electrode table (in csv format) and outputs MNI coordinates
 #' @author Zhengjia Wang
 #' @date Feb 08, 2023
 #' @license Apache-2.0
 #'
+#' @title Imports electrode table (in csv format) and outputs MNI coordinates
+#' 
 #' @param subject character representing RAVE project+subject (e.g. `demo/DemoSubject`)
 #'
 #' @param input_filepath path to input csv file, or `NULL`;
