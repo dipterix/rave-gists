@@ -23,7 +23,7 @@
 #' @examples 
 #' 
 #' snippet <- raveio::load_snippet("imaging-pial-outer-smoothed")
-#' surface_path <- '~/rave_data/raw_dir/DemoSubject/rave-imaging/fs/surf/lh.pial'
+#' surface_path <- "~/rave_data/data_dir/demo/DemoSubject/fs/surf/lh.pial.asc"
 #' envelope <- snippet(surface_path = surface_path)
 #' 
 #' if(dipsaus::package_installed("rgl")) {
@@ -35,7 +35,7 @@ NULL
 
 # ---- Variable Section --------------------------------------------------------
 
-# surface_path <- '~/Dropbox (PENN Neurotrauma)/RAVE/Samples/raw/PAV010/rave-imaging/fs/surf/lh.pial'
+# surface_path <- '~/Dropbox (PENN Neurotrauma)/RAVE/Samples/raw/PAV010/rave-imaging/fs/surf/rh.pial'
 # IJK2RAS <- NULL
 # verbose <- TRUE
 # preview <- TRUE
@@ -54,15 +54,30 @@ debug <- function(..., appendLF = TRUE) {
     message(..., appendLF = appendLF)
   }
 }
+
+if(interactive()) {
+  rgl_options <- options("rgl.useNULL" = TRUE, "rgl.startQuartz" = FALSE)
+  on.exit({ do.call(options, rgl_options) }, add = TRUE)
+}
+
 preview3D <- function(..., func = "wire3d") {
-  if(isTRUE(get0("preview", ifnotfound = FALSE)) && dipsaus::package_installed("rgl")) {
-    options("rgl.startQuartz" = FALSE)
+  if(interactive() && 
+     isTRUE(get0("preview", ifnotfound = FALSE)) && 
+     dipsaus::package_installed("rgl")) {
+    
     rgl <- asNamespace("rgl")
-    rgl[[func]](...)
+    if( ...length() == 0 ) {
+      widget <- rgl$rglwidget(x = rgl$scene3d(minimal = FALSE))
+      print(widget)
+      return()
+    } else {
+      rgl[[func]](...)
+    }
+    
   }
 }
 preview2D <- function(expr) {
-  if(isTRUE(get0("preview", ifnotfound = FALSE))) {
+  if(interactive() && isTRUE(get0("preview", ifnotfound = FALSE))) {
     expr
   }
 }
@@ -100,6 +115,12 @@ surface_orig <- structure(list(
 surface <- surface_orig
 surface$vb <- solve(IJK2RAS) %*% surface$vb
 
+vertex_range <- apply(surface$vb, 1, range)
+max_fill <- min(c(vertex_range[1, 1:3], 
+                  resolution - vertex_range[2, 1:3]))
+
+max_fill <- floor(max_fill) - 2
+
 # Creating a volume
 volume <- array(0L, dim = c(rep(resolution, 3), 1))
 
@@ -112,9 +133,9 @@ volume[surface_index] <- 1L
 # convert to cimg object so imager can handle it
 volume <- imager::as.cimg(volume)
 
-# Grow the volume by 15 voxels and shrink back. This step connects the 
+# Grow the volume by ~30 voxels and shrink back. This step connects the 
 # segmented voxels into a shell that is water-tight
-volume_filled <- imager::fill(volume, 15)
+volume_filled <- imager::fill(volume, max_fill)
 
 # bucket-fill from the corner 
 volume_filled2 <- imager::bucketfill(volume_filled, x = 1, y = 1, z = 1, color = 1L)
@@ -140,7 +161,7 @@ preview2D({
   plot(volume, frame = frame, axes = FALSE, main = "1. Initial surface embed")
   
   imager::channel(volume, 2) <- volume_filled
-  plot(volume, frame = frame, axes = FALSE, main = "2. Grow 15 voxels+shrink back")
+  plot(volume, frame = frame, axes = FALSE, main = "2. Grow+shrink")
   
   imager::channel(volume, 2) <- volume_filled2
   plot(volume, frame = frame, axes = FALSE, main = "3. Bucket-fill outside")
@@ -167,8 +188,9 @@ mesh <- Rvcg::vcgIsosurface(volume4, threshold = 0.5, IJK2RAS = IJK2RAS)
 
 debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", Rvcg::vcgVolume(mesh)))
 
-mesh_remesh <- Rvcg::vcgUniformRemesh(mesh, voxelSize = 1, multiSample = FALSE,
-                                      mergeClost = TRUE, silent = !verbose)
+mesh_remesh <- Rvcg::vcgUniformRemesh(
+  mesh, voxelSize = 1, multiSample = FALSE,
+  mergeClost = TRUE, silent = !verbose)
 envelope_smoothed <- Rvcg::vcgSmooth(
   mesh_remesh,
   "surfPreserveLaplace",
@@ -178,8 +200,12 @@ envelope_smoothed <- Rvcg::vcgSmooth(
 
 debug(sprintf("The re-meshed+smoothed surface volume is %.1f mm^3", Rvcg::vcgVolume(envelope_smoothed)))
 
+if(preview) {
+  debug("Generating 3D preview (if rgl package is available)...")
+}
 preview3D(surface_orig, col = 2, func = "shade3d")
 preview3D(envelope_smoothed, col = 3)
+preview3D()
 
 # save surface
 if(length(save_path)) {
