@@ -116,10 +116,14 @@ surface <- surface_orig
 surface$vb <- solve(IJK2RAS) %*% surface$vb
 
 vertex_range <- apply(surface$vb, 1, range)
-max_fill <- min(c(vertex_range[1, 1:3], 
-                  resolution - vertex_range[2, 1:3]))
+max_fill <- min(c(
+  vertex_range[1, 1:3], 
+  resolution - vertex_range[2, 1:3],
+  20
+))
 
 max_fill <- floor(max_fill) - 2
+debug("Max grow size: ", max_fill)
 
 # Creating a volume
 volume <- array(0L, dim = c(rep(resolution, 3), 1))
@@ -133,60 +137,50 @@ volume[surface_index] <- 1L
 # convert to cimg object so imager can handle it
 volume <- imager::as.cimg(volume)
 
-# Grow the volume by ~30 voxels and shrink back. This step connects the 
+# Grow the volume by ~15mm and shrink back (~12mm). 
+# This step connects the 
 # segmented voxels into a shell that is water-tight
-volume_filled <- imager::fill(volume, max_fill)
+volume_grew <- imager::grow(volume, max_fill)
+volume_shrunk <- imager::shrink(volume_grew, max_fill - 3)
 
 # bucket-fill from the corner 
-volume_filled2 <- imager::bucketfill(volume_filled, x = 1, y = 1, z = 1, color = 1L)
+volume_filled <- imager::bucketfill(
+  volume_shrunk, x = 1, y = 1, z = 1, color = 1L)
 
 # Fill the voxels within the surface
-volume2 <- 1L - (volume_filled2 - volume_filled)
-
-# Clean, remove "isolated" voxels by shrink first and grow
-volume3 <- imager::clean(volume2, 3)
-# image((imager::grow(volume3, 3)[127,,] - volume3[128,,]))
-
-# Further row the image by 3 voxels
-volume4 <- imager::grow(volume3, 3)
+volume2 <- 1L - (volume_filled - volume_shrunk)
 
 # preview
 preview2D({
   oldPar <- graphics::par(c("mfrow", "mar"))
-  graphics::par(mfrow = c(2, 3), mar = c(0.1, 0.1, 2.1, 0.1))
+  graphics::par(mfrow = c(2, 2), mar = c(0.1, 0.1, 2.1, 0.1))
   
   frame <- ceiling(resolution / 2)
   volume <- imager::add.color(volume)
   
   plot(volume, frame = frame, axes = FALSE, main = "1. Initial surface embed")
   
-  imager::channel(volume, 2) <- volume_filled
-  plot(volume, frame = frame, axes = FALSE, main = "2. Grow+shrink")
+  imager::channel(volume, 2) <- volume_grew - imager::channel(volume, 1)
+  plot(volume, frame = frame, axes = FALSE, main = "2. Dilate voxels")
   
-  imager::channel(volume, 2) <- volume_filled2
-  plot(volume, frame = frame, axes = FALSE, main = "3. Bucket-fill outside")
+  imager::channel(volume, 2) <- volume_shrunk - volume_grew
+  plot(volume, frame = frame, axes = FALSE, main = "3. Erode voxels")
   
   imager::channel(volume, 2) <- volume2
-  plot(volume, frame = frame, axes = FALSE, main = "4. 1-XOR(2, 3)")
-  
-  imager::channel(volume, 2) <- volume3
-  plot(volume, frame = frame, axes = FALSE, main = "5. Remove thin edges")
-  
-  imager::channel(volume, 1) <- volume4 - volume3
-  plot(volume, frame = frame, axes = FALSE, main = "6. Expand 5 by 3 voxels")
+  plot(volume, frame = frame, axes = FALSE, main = "4. Filled volume")
   
   do.call(graphics::par, oldPar)
   
 })
 
-rm(volume, volume2, volume3, volume_filled, volume_filled2)
+rm(volume, volume_shrunk, volume_filled, volume_grew)
 
 # Generate surface mesh from volume4
-volume4 <- as.array(volume4)
-dim(volume4) <- dim(volume4)[c(1,2,3)]
-mesh <- Rvcg::vcgIsosurface(volume4, threshold = 0.5, IJK2RAS = IJK2RAS)
+volume2 <- as.array(volume2)
+dim(volume2) <- dim(volume2)[c(1,2,3)]
+mesh <- Rvcg::vcgIsosurface(volume2, threshold = 0.5, IJK2RAS = IJK2RAS)
 
-debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", Rvcg::vcgVolume(mesh)))
+debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
 
 mesh_remesh <- Rvcg::vcgUniformRemesh(
   mesh, voxelSize = 1, multiSample = FALSE,
