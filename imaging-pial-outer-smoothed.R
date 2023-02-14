@@ -12,7 +12,8 @@
 #' @param surface_path path to a FreeSurfer pial surface
 #' @param IJK2RAS voxel 'IJK' (zero-indexed) to 'tkrRAS' or 'RAS' transform;
 #' leave it `NULL` if you don't know how to set it
-#' @param save_path path to save the pial envelope, or `NULL` if no save is needed
+#' @param save_path path to save the pial envelope, or `NULL` if no save 
+#' is needed
 #' @param verbose whether to verbose the progress; default is true
 #' @param preview whether to preview the 3D model; default is false. Please
 #' install package `rgl` if enabled
@@ -192,7 +193,8 @@ if(length(save_path)) {
     faces = face_index,
     format = "bin"
   )
+  invisible(envelope_smoothed)
+} else {
+  envelope_smoothed
 }
 
-# return `envelope_smoothed` with no print
-invisible(envelope_smoothed)
