@@ -1,32 +1,85 @@
-
+#' @author Xiang Zhang
+#' @date 2023-02-14
+#' @license Apache-2.0
+#' @title Auto-preprocessing script for PennEMU subjects
+#' @description All-in-one script from Blackrock file to viewing data in RAVE
+#' power explorer
+#' 
+#' @param project_name project name to process
+#' @param subject_code subject code
+#' @param log_filepath path to log file describing the experiment
+#' @param data_partition which data matrix within the blocks should be used; 
+#' this is designed for non-continuous recordings; default is `1`
+#' @param launch_rave_gui whether to launch RAVE GUI after preprocessing
+#' @param launch_time_range time range to select if GUI is launched
+#' 
+#' The following parameters control electrodes to import
+#' @param electrode_nsp_type which `NSP` file to load, default is `ns3`
+#' @param electrode_subset subset of electrodes to import, or `NULL` to import 
+#' all; default is `NULL`
+#' @param electrode_coordinate_from_project which project to look for
+#' `electrodes.csv`; default is `automated`: see electrode localization SOP
+#' 
+#' Pipeline parameters - importing signals
+#' @param importLFP_skip_validation whether to skip validate when importing LFP
+#' default is false
+#' @param importLFP_force_import whether to force import the subject even if 
+#' the subject has been imported before; default is true
+#' @param all_blocks_must_exist whether all blocks must exist when importing
+#' the data; default is false
+#' 
+#' Pipeline parameters - wavelet
+#' @param wavelet_predownsample pre-downsample the signals before wavelet;
+#' default is 1 (no down-sample); other recommended values are 2, 4, 8
+#' @param wavelet_frequencies frequencies to apply wavelet; default are from 2
+#' to 200 Hz at a step of 2Hz
+#' 
+#' END OF DOC
+NULL
 
 # --------- parameters needs to update every time ----------------------
-project_name <- "devel"
-subject_code <- 'PAV999'
-log_filepath <- "~/rave_data/raw_dir/PAV999/PAV999_testinglog.xlsx"
-data_partition <- 1
-launch_rave_gui <- TRUE
-launch_time_range <- c(-1, 2)
-
-# Where to get electrode channels
-electrode_nsp_type <- "ns3"
-# Set if not all electrodes are to be imported
-electrode_subset <- "1-7"
-# where to import electrodes.csv
-electrode_coordinate_from_project <- "automated"
-
-# settings for `import_lfp_native`
-importLFP_skip_validation <- FALSE
-importLFP_force_import <- TRUE
-all_blocks_must_exist <- FALSE
-
-# settings for `wavelet_module`
-wavelet_predownsample <- 4 
-wavelet_frequencies<- seq(from = 2, to = 200, by = 2)
+# project_name <- "devel"
+# subject_code <- 'PAV999'
+# log_filepath <- "~/rave_data/raw_dir/PAV999/PAV999_testinglog.xlsx"
+#
+# # The following arguments are optional
+# data_partition <- 1
+# launch_rave_gui <- TRUE
+# launch_time_range <- c(-1, 2)
+# 
+# # Where to get electrode channels
+# electrode_nsp_type <- "ns3"
+# # Set if not all electrodes are to be imported
+# electrode_subset <- NULL
+# # where to import electrodes.csv
+# electrode_coordinate_from_project <- "automated"
+# 
+# # settings for `import_lfp_native`
+# importLFP_skip_validation <- FALSE
+# importLFP_force_import <- TRUE
+# all_blocks_must_exist <- FALSE
+# 
+# # settings for `wavelet_module`
+# wavelet_predownsample <- 1L
+# wavelet_frequencies<- seq(from = 2, to = 200, by = 2)
 
 
 # ------- create folders for each blocks and copy files into it---------
 `%?<-%` <- dipsaus::`%?<-%`
+
+# Initialize default parameters
+data_partition %?<-% 1
+launch_rave_gui %?<-% interactive()
+launch_time_range %?<-% c(-1, 2)
+electrode_nsp_type %?<-% "ns3"
+electrode_subset %?<-% NULL
+electrode_coordinate_from_project %?<-% "automated"
+importLFP_skip_validation %?<-% FALSE
+importLFP_force_import %?<-% TRUE
+all_blocks_must_exist %?<-% FALSE
+wavelet_predownsample %?<-% 1L
+wavelet_frequencies %?<-% seq(from = 2, to = 200, by = 2)
+
 
 
 # set the dir for data and log
