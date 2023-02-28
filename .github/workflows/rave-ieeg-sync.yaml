@@ -9,12 +9,10 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'rave-ieeg'
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Validate actor & repository
-        run: |
-          echo ${{ github }}
       - name: Checkout upstream
         uses: actions/checkout@v3
         with:
