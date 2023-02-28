@@ -14,8 +14,7 @@ jobs:
     steps:
       - name: Validate actor & repository
         run: |
-          echo ${{ github.actor }}
-          echo ${{ github.repository }}
+          echo ${{ github }}
       - name: Checkout upstream
         uses: actions/checkout@v3
         with:
