@@ -12,12 +12,13 @@ jobs:
     if: github.repository_owner == 'rave-ieeg'
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      UPSTREAM_REPO: dipterix/rave-gists
     steps:
       - name: Checkout upstream
         uses: actions/checkout@v3
         with:
-          repository: dipterix/rave-gists
+          repository: ${{ env.UPSTREAM_REPO }}
           fetch-depth: 2
       - name: Sync changes
         run: |
-          echo "Running git push origin HEAD:sync"
+          git push origin HEAD:sync
