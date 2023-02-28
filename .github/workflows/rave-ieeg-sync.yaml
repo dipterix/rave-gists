@@ -1,0 +1,25 @@
+name: RAVE-iEEG Synchronize Forks
+
+on:
+  push:
+    branches: [main, master]
+  schedule:
+    - cron: '0 0 * * *' # Sync every day at midnight
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Validate actor
+        run: |
+          echo ${{ github.actor }}
+      - name: Checkout upstream
+        uses: actions/checkout@v3
+        with:
+          repository: dipterix/rave-gists
+          fetch-depth: 2
+      - name: Sync changes
+        run: |
+          echo "Running git push origin HEAD:sync""

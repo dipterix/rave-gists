@@ -1,4 +1,4 @@
-#' @author Zhengjia Wang (copyright reserved)
+#' @author Zhengjia Wang
 #' @date 2023-02-13
 #' @license Apache-2.0
 #' 
@@ -209,7 +209,7 @@ if(length(save_path)) {
   face_index <- face_index - (face_index_start - 1L)
   freesurferformats::write.fs.surface(
     filepath = save_path,
-    vertex_coords = t(envelope_smoothed$vb[c(1, 2, 3 )]),
+    vertex_coords = t(envelope_smoothed$vb[c(1, 2, 3), ]),
     faces = face_index,
     format = "bin"
   )
