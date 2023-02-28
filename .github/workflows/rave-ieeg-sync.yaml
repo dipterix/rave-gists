@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master]
   schedule:
-    - cron: '0 0 * * *' # Sync every day at midnight
+    - cron: '0 * * * *' # Sync every hour
 
 jobs:
   sync:
