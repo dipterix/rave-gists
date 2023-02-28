@@ -12,7 +12,7 @@ Most scripts in this repository can be directly sourced into `R`. [[This example
 
 #### Automated data processing
 
-* Auto preprocessing from BlackRock [topic: auto-preprocessing-from-blackrock] [requested by BeauchampLab@Upenn]
+* Auto preprocessing from BlackRock [[link](auto-preprocessing-from-blackrock.R)] [topic: auto-preprocessing-from-blackrock] [requested by BeauchampLab@Upenn]
 
 #### Format conversion
 
