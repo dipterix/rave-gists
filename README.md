@@ -10,11 +10,14 @@ Most scripts in this repository can be directly sourced into `R`. [[This example
 
 ### Topics
 
+#### Automated data processing
+
+* Auto preprocessing from BlackRock [topic: auto-preprocessing-from-blackrock] [requested by BeauchampLab@Upenn]
+
 #### Format conversion
 
-* `fst` to `HDF5` [[link](fileformat-convert-fst-to-hdf5.R)] [topic: fileformat-convert-fst-to-hdf5] [credits: Kaitlyn@UAB, Faraz@USC]
+* `fst` to `HDF5` [[link](fileformat-convert-fst-to-hdf5.R)] [topic: fileformat-convert-fst-to-hdf5] [requested by: GoodmanLab@UAB, DABI@USC]
 
 #### Electrode localization, coordinates
 
-* Convert electrode coordinates: from `tkrRAS` or `scannerRAS` to MNI305 or MNI152 [[link](coordinate-compute-MNI-from-tkrRAS-or-scannerRAS.R)] [topic: coordinate-compute-MNI-from-tkrRAS-or-scannerRAS] [credits: Kaitlyn@UAB]
-
+* Convert electrode coordinates: from `tkrRAS` or `scannerRAS` to MNI305 or MNI152 [[link](coordinate-compute-MNI-from-tkrRAS-or-scannerRAS.R)] [topic: coordinate-compute-MNI-from-tkrRAS-or-scannerRAS] [requested by: GoodmanLab@UAB]
