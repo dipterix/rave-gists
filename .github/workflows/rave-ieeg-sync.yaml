@@ -12,9 +12,10 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Validate actor
+      - name: Validate actor & repository
         run: |
           echo ${{ github.actor }}
+          echo ${{ github.repository }}
       - name: Checkout upstream
         uses: actions/checkout@v3
         with:
@@ -22,4 +23,4 @@ jobs:
           fetch-depth: 2
       - name: Sync changes
         run: |
-          echo "Running git push origin HEAD:sync""
+          echo "Running git push origin HEAD:sync"
