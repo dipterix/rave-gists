@@ -21,7 +21,7 @@
 #'         epoch_name = "auditory_onset", time_window = c(-1, 2),
 #'         save_path = "exports")
 #' 
-#' END OF DOCS
+#' END OF DOC
 NULL
 
 # ---- Global variables ----------------------------------------------------
