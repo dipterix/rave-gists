@@ -19,7 +19,18 @@
 #' is `FALSE`
 #' @examples
 #' 
-#' snippet <- raveio::load_snippet("fileformat-convert-nevnsx-to-hdf5")
+#' snippet <- raveio::load_snippet(
+#'   topic = "fileformat-convert-nevnsx-to-hdf5", 
+#'   local = "https://raw.githubusercontent.com/dipterix/rave-gists/main")
+#' snippet(
+#'   project_name = "devel",
+#'   subject_code = "for_ZW",
+#'   path_neuroevent = "~/Downloads/FT_1_p.nev",
+#'   export_prefix = "sub-testSubject_ses-FT_task-p",
+#'   exclude_spike = TRUE,
+#'   exclude_nsx = NULL,
+#'   force = FALSE
+#' )
 #' 
 #' 
 #' END OF DOC
@@ -88,4 +99,4 @@ print(nsp)
 message("Done exporting .nev & nsx data with prefix:\n  ", nsp$nev$prefix)
 message("If you want to import these data into RAVE, please use [", names(raveio::IMPORT_FORMATS)[[1]], "] format.")
 
-
+invisible(nsp)
