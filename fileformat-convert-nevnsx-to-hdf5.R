@@ -20,8 +20,7 @@
 #' @examples
 #' 
 #' snippet <- raveio::load_snippet(
-#'   topic = "fileformat-convert-nevnsx-to-hdf5", 
-#'   local = "https://raw.githubusercontent.com/dipterix/rave-gists/main")
+#'   topic = "fileformat-convert-nevnsx-to-hdf5")
 #' snippet(
 #'   project_name = "devel",
 #'   subject_code = "for_ZW",
