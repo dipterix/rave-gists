@@ -21,6 +21,22 @@
 #' @returns A RAVE 3D viewer widget
 #' @examples
 #' 
+#' snippet <- raveio::load_snippet("visualize-mni-in-template-brain", local = FALSE)
+#' snippet(
+#'   path_to_mni_coordinate_BIDS = "~/Downloads/sub-HUP060_ses-presurgery_acq-seeg_space-fsaverage_electrodes.tsv",
+#'   template_brain = "N27",
+#'   na_strings = "n/a",
+#'   electrode_value = function(coord) {
+#'     gsub("[0-9]+$", "", coord$name)
+#'   },
+#'   data_name = "NamePrefix",
+#'   data_color = c("orange", "dodgerblue3", "darkgreen", 
+#'                  "orangered", "brown", "purple3"),
+#'   controllers = list(
+#'     "Right Opacity" = 0.3
+#'   )
+#' )
+#' 
 #' 
 #' END OF DOC
 NULL
@@ -34,7 +50,7 @@ NULL
 # na_strings <- "n/a"
 # 
 # electrode_value <- function(coord) {
-#   gsub("[0-9]+$", "", coords$name)
+#   gsub("[0-9]+$", "", coord$name)
 # }
 # 
 # data_name <- "Value"
