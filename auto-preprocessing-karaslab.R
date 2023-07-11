@@ -30,11 +30,21 @@
 #' @param frequencies wavelet frequencies to get; default is 2-200 at step 2
 #' @param kernel_table do not change if you don't know what's this
 #' @param watch_progress whether to watch the progress
+#' @param rave_preprocess preprocessing container, pass this object if you 
+#' want to run multiple subjects; set `dry_run` to `TRUE` if you do so
+#' @param dry_run whether not to run the pipelines, will return the pipeline
+#' collection if set to `TRUE`
 #' @returns A RAVE-preprocessed subject
 #' 
 #' @examples
 #' 
+#' # load the script
 #' auto_preprocessing <- raveio::load_snippet("auto-preprocessing-karaslab", local = FALSE)
+#' 
+#' # print documentation
+#' print(auto_preprocessing)
+#' 
+#' # run script
 #' auto_preprocessing(project_name = "test",
 #'                    subject_code = "jh103",
 #'                    blocks = "presurgery_ictal_ecog_02",
@@ -57,10 +67,10 @@ NULL
 # Here are the variables to edit if you run as a script
 
 # DIPSAUS DEBUG START
-# project_name <- "test"
-# subject_code <- "jh103"
-# blocks <- c("presurgery_ictal_ecog_02")
-# electrode_channels <- "1-20"
+project_name <- "test"
+subject_code <- "jh103"
+blocks <- c("presurgery_ictal_ecog_02")
+electrode_channels <- "1-20"
 
 # use whatever is provided
 sample_rate  %?<-%  1000
@@ -106,7 +116,7 @@ subject <- raveio::RAVESubject$new(project_name = project_name,
                                    strict = FALSE)
 
 # Initialize preprocess
-rave_preprocess <- raveio::pipeline_collection(
+rave_preprocess  %?<-%  raveio::pipeline_collection(
   root_path = file.path(subject$pipeline_path, "rave-preprocess-collections"),
   overwrite = TRUE
 )
@@ -186,7 +196,7 @@ pipeline_import <- rave_preprocess$add_pipeline(
 pipeline_notch_filter <- rave_preprocess$add_pipeline(
   "notch_filter",
   # set names to "diagnostic_plots" if you want to generate diagnostic_plots
-  names = ifelse(notch_diagnostic_plots, "diagnostic_plots", "apply_notch"),
+  names = c("apply_notch", if(notch_diagnostic_plots) "diagnostic_plots" else NULL),
   deps = pipeline_import$id,
   pre_hook = function(inputs, path) {
     dipsaus::list_to_fastmap2(
@@ -240,5 +250,11 @@ if( watch_progress ) {
   })
 }
 
-rave_preprocess$run()
+if( dry_run ) {
+  re <- rave_preprocess
+} else {
+  re <- rave_preprocess$run()
+}
+
+re
 
