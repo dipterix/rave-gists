@@ -67,10 +67,10 @@ NULL
 # Here are the variables to edit if you run as a script
 
 # DIPSAUS DEBUG START
-project_name <- "test"
-subject_code <- "jh103"
-blocks <- c("presurgery_ictal_ecog_02")
-electrode_channels <- "1-20"
+# project_name <- "test"
+# subject_code <- "jh103"
+# blocks <- c("presurgery_ictal_ecog_02")
+# electrode_channels <- "1-20"
 
 # use whatever is provided
 sample_rate  %?<-%  1000
