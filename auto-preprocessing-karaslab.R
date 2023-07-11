@@ -188,7 +188,7 @@ pipeline_import <- rave_preprocess$add_pipeline(
       }
     })
     
-  }
+  }, standalone = TRUE
 )
 
 # ---- Pipeline for notch filter -----------------------------------------------
@@ -210,7 +210,7 @@ pipeline_notch_filter <- rave_preprocess$add_pipeline(
     )
     path <- raveio::dir_create2(path)
     inputs$diagnostic_plot_params$path <- file.path(path, "diagnostic_plot.pdf")
-  }
+  }, standalone = TRUE
 )
 
 # ---- Pipeline for wavelet ----------------------------------------------------
@@ -229,7 +229,7 @@ pipeline_wavelet <- rave_preprocess$add_pipeline(
         target_sample_rate = target_sample_rate
       )
     )
-  }
+  }, standalone = TRUE
 )
 
 # ==============================================================================
