@@ -1,6 +1,6 @@
 image_path <- "/Users/dipterix/Dropbox (PennNeurosurgery)/RAVE/Samples/raw/YAH/MRI/MRI_RAW.nii"
 template_subject <- "cvs_avg35_inMNI152"
-template_mapping <- "antsRegistrationSyNRepro[s]" #"Affine" # 
+template_mapping <- "antsRegistrationSyNRepro[a]" #"a: Affine" # s: SYN (SDR)
 resample <- FALSE
 work_path <- "~/Desktop/junk2"
 electrode_file <- "/Users/dipterix/Dropbox (PennNeurosurgery)/RAVE/Samples/data/demo/YAH/rave/meta/electrodes.csv"
@@ -276,11 +276,20 @@ if(length(electrode_table)) {
   valid_electrodes <- rowSums(electrode_table_LPS^2) > 0
   
   # trans <- raveio::read_mat2(fwdtransforms)
+  
+  # If you use affine transform
   mni_coord_lps_py <- ants$apply_transforms_to_points(
     dim = 3L,
     points = electrode_table_LPS,
-    transformlist = registration$invtransforms,
-    verbose = debug)
+    transformlist = registration$fwdtransforms,
+    verbose = debug, whichtoinvert = list(TRUE))
+  
+  # # If you use SYN transform
+  # mni_coord_lps_py <- ants$apply_transforms_to_points(
+  #   dim = 3L,
+  #   points = electrode_table_LPS,
+  #   transformlist = registration$invtransforms,
+  #   verbose = debug)
   
   mni_coord_lps <- rpyANTs::py_to_r(mni_coord_lps_py)
   mni_coord_lps[!valid_electrodes, ] <- 0
