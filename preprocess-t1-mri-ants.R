@@ -1,11 +1,11 @@
-image_path <- "/Users/dipterix/Dropbox (PennNeurosurgery)/RAVE/Samples/raw/YAH/MRI/MRI_RAW.nii"
-template_subject <- "cvs_avg35_inMNI152"
-template_mapping <- "antsRegistrationSyNRepro[a]" #"a: Affine" # s: SYN (SDR)
-resample <- FALSE
 work_path <- "~/Desktop/junk2"
+image_path <- "/Users/dipterix/Dropbox (PennNeurosurgery)/RAVE/Samples/raw/YAH/MRI/MRI_RAW.nii"
 electrode_file <- "/Users/dipterix/Dropbox (PennNeurosurgery)/RAVE/Samples/data/demo/YAH/rave/meta/electrodes.csv"
+resample <- FALSE
 
 debug <- TRUE
+template_mapping <- "antsRegistrationSyNRepro[a]" #"a: Affine" # s: SYN (SDR)
+template_subject <- "cvs_avg35_inMNI152"
 # System preparation
 ants <- rpyANTs::load_ants()
 antspynet <- rpyANTs::load_antspynet()
