@@ -49,7 +49,7 @@ surface_path <- raveio::dir_create2(file.path(work_path, "surf"))
 
 # Read in original image
 image_original <- rpyANTs::as_ANTsImage(image_path, strict = TRUE)
-image_original$to_file(file.path(volume_path, "orig.nii.gz"))
+# image_original$to_file(file.path(volume_path, "orig.nii.gz"))
 input_image <- image_original
 
 
@@ -62,7 +62,7 @@ if( resample ) {
     interp_type = "linear"
   )
 }
-input_image$to_file(file.path(volume_path, "resampled.nii.gz"))
+# input_image$to_file(file.path(volume_path, "resampled.nii.gz"))
 
 # Brain mask
 probability_mask <- rpyANTs::antspynet_brain_extraction(x = input_image, modality = "t1", verbose = debug)
