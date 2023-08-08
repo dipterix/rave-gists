@@ -1,3 +1,23 @@
+#' @author Zhengjia Wang
+#' @date July 17, 2023
+#' @license Apache-2.0
+#' 
+#' @title Fast pre-processing T1-weighted MRI for calculating MNI mapping, 
+#' segmentation, and parcellation
+#' @description
+#' T1 MRI skull-stripping, segmentation, parcellation, and registration to MNI.
+#' The intermediate files contain skull-stripped brain, Atropos segmentation,
+#' DKT parcellation, and align to MRI template. The pre-skull-stripped images
+#' will NOT be saved so the data does not contain subject information (not 
+#' clinically approved)
+#' 
+#' @param work_path working directory, will store all intermediate results. 
+#' Existing files will be overwritten
+#' @param image_path input image path, must be `NIfTI` (`.nii` or `.nii.gz`)
+#' @param electrode_file optional electrode file (`.csv`) with three columns;
+#' the columns must be `T1R`, `T1A`, and `T1S` (native scanner RAS coordinate,
+#' RAS means )
+#' 
 work_path <- "~/Desktop/junk2"
 image_path <- "/Users/dipterix/Dropbox (PennNeurosurgery)/RAVE/Samples/raw/YAH/MRI/MRI_RAW.nii"
 electrode_file <- "/Users/dipterix/Dropbox (PennNeurosurgery)/RAVE/Samples/data/demo/YAH/rave/meta/electrodes.csv"
