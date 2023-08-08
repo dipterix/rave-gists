@@ -30,7 +30,18 @@
 #' print(import_ft)
 #' 
 #' # run script
+#' file_path = "sub-DM1006_ses-intraop_task-lombard_ft-raw.mat"
+#' # BIDS_info <- raveio:::analyze_bids_fname(file_path)
 #' 
+#' import_ft(
+#'   file_path = file_path,
+#'   # # Default using BIDS sub+ses+task information
+#'   # project_name = BIDS_info$task,
+#'   # subject_code = BIDS_info$sub,
+#'   # block_prefix = sprintf("%s_%s", BIDS_info$ses, BIDS_info$task),
+#'   do_import = TRUE,
+#'   launch_rave = TRUE
+#' )
 #' 
 #'
 #' END OF DOC
@@ -42,7 +53,7 @@ NULL
 # 
 # project_name <- "lombard"
 # subject_code <- "DM1006"
-# file_path <- "~/Dropbox (PennNeurosurgery)/RAVE/Samples/raw/Latane/sub-DM1006_ses-intraop_task-lombard_ft-raw.mat"
+# file_path <- "./sub-DM1006_ses-intraop_task-lombard_ft-raw.mat"
 # data_name <- NULL
 # block_prefix <- "intraop_lombard"
 # 
@@ -51,12 +62,46 @@ NULL
 # ---- code body ---------------------------------------------------------------
 `%?<-%` <- dipsaus::`%?<-%`
 
+# normalize the path 
+file_path <- normalizePath(file_path, winslash = "/")
+
+# Get BIDS information from the file name and set default (if not specified)
+BIDS_info <- raveio:::analyze_bids_fname(file_path)
+project_name %?<-% BIDS_info$task
+subject_code %?<-% BIDS_info$sub
+block_prefix %?<-% sprintf("%s_%s", BIDS_info$ses, BIDS_info$task)
+
+# Default
 data_name %?<-% NULL
 do_import %?<-% TRUE
+launch_rave %?<-% TRUE
+
+# The following function has been incorporated into latest raveio
+# re-implement for max backward compatibility
+# Make sure scipy and mat73 has been installed
+message("Checking Python environment")
+rpymat::ensure_rpymat()
+py_packages <- rpymat::list_pkgs()
+req_modules <- c("scipy", "mat73")
+req_modules <- req_modules[!req_modules %in% py_packages$package]
+if(length(req_modules)) {
+  rpymat::add_packages(req_modules)
+}
+
+sio <- rpymat::import("scipy.io", convert = FALSE)
+mat73 <- rpymat::import("mat73", convert = FALSE)
 
 # If you see `ERROR:root:ERROR: MATLAB type not supported: table, (uint32)`, it's fine
-message("Don't panic if you see message below: `ERROR:root:ERROR: MATLAB type not supported: table, (uint32)`. You are fine!")
-raw_data <- raveio::read_mat(file_path, engine = "py")
+message("Don't panic if you see the following message: `MATLAB type not supported: table, (uint32)`. You are fine!!!")
+# raw_data <- raveio::read_mat(file_path, engine = "py")
+raw_data <- tryCatch({
+  # <= 7.3
+  sio$loadmat(file_path)
+}, error = function(e) {
+  mat73$loadmat(file_path)
+})
+# convert to R object
+raw_data <- rpymat::py_to_r(raw_data)
 
 if(!length(data_name)) {
   nms <- names(raw_data)
