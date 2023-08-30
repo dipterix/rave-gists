@@ -38,6 +38,12 @@ wavelet_enabled <- TRUE
 sample_rate_regexp <- "fs[ ]{0,}=[ ]{0,}([0-9]+)[^0-9]"
 
 # ------ Collect information ------------------------------
+
+if(!dipsaus::package_installed("rnwb")) {
+  ravemanager:::install_packages("rnwb")
+}
+
+
 container <- rnwb::NWBHDF5IO$new(path = nwb_path, mode = "r")
 
 # DIPSAUS DEBUG START
@@ -83,6 +89,8 @@ container$with({
   # This process could be error prone since I don't know about the 
   # content
   rnwb::run_pystring("r.electrode_table = r.lfp_data.electrodes[:]", convert = TRUE)
+  chann_id <- electrode_table$channID
+  
   group_names <- names(data$electrode_groups)
   group_descriptions <- sapply(group_names, function(gname) {
     rnwb::to_r(data$electrode_groups[[gname]]$description)
@@ -96,7 +104,12 @@ container$with({
     rnwb::to_r(g$description)
   }, "")
   electrode_table <- merge(electrode_table, group_table, by = "group_descriptions", all.x = TRUE)
-  electrode_table$group <- NULL      
+  electrode_table$group <- NULL  
+  
+  electrode_table <- merge(electrode_table, data.frame(
+    channID = chann_id
+  ))
+  
   
   lfp_channels <- as.integer(electrode_table$channID)
   if(length(lfp_channels) != n_channels) {
@@ -148,7 +161,9 @@ if( has_events ) {
 }
 
 # parallel convert
-files <- raveio::lapply_async(lfp_channels, function(channel) {
+files <- raveio::lapply_async(seq_along(lfp_channels), function(ii) {
+  
+  channel <- lfp_channels[[ii]]
   
   container <- rnwb::NWBHDF5IO$new(path = nwb_path, mode = "r")
   container$with({
@@ -161,7 +176,7 @@ files <- raveio::lapply_async(lfp_channels, function(channel) {
       lfp_data <- lfp_data[[nm]]
     }
     fpath <- file.path(block_folder, sprintf("channel_%04d.h5", channel))
-    signal <- lfp_data$data[, channel, convert = TRUE] * conversion
+    signal <- lfp_data$data[, ii, convert = TRUE] * conversion
     raveio::save_h5(x = signal, file = fpath, name = "data", ctype = "numeric", replace = TRUE, quiet = TRUE)
     meta <- jsonlite::toJSON(auto_unbox = TRUE, list(
       channel = channel,
@@ -279,9 +294,7 @@ rave_electrode_table <- data.frame(
   Coord_x = 0,
   Coord_y = 0,
   Coord_z = 0,
-  Label = electrode_labels$Label,
   LabelPrefix = electrode_table$shortBAn,
-  Dimension = electrode_labels$Dimension,
   Hemisphere = ifelse(tolower(electrode_table$hemisph == "l"), "left", "right"),
   LocationType = "iEEG",
   SignalType = "LFP",
@@ -292,6 +305,16 @@ rave_electrode_table <- data.frame(
   T1A = electrode_table$ycoord, 
   T1S = electrode_table$zcoord
 )
+
+rave_electrode_table <- data.table::rbindlist(
+  lapply(split(rave_electrode_table, rave_electrode_table$LabelPrefix), function(sub) {
+    sub$Label <- sprintf("%s%d", sub$LabelPrefix, seq_len(nrow(sub)))
+    sub$Dimension <- nrow(sub)
+    sub
+  })
+)
+# re-order by electrode
+rave_electrode_table <- rave_electrode_table[order(rave_electrode_table$Electrode), ]
 
 
 raveio::save_meta2(
