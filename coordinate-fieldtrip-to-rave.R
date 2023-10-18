@@ -21,6 +21,20 @@
 #' @param preview Whether to preview the brain; default is true in interactive
 #' mode
 #' 
+#' @examples
+#' 
+#' coord_ft_to_rave <- raveio::load_snippet("coordinate-fieldtrip-to-rave")
+#' # See docs
+#' print(coord_ft_to_rave)
+#' 
+#' # run it
+#' coord_ft_to_rave(
+#'   subject_code = "alexis",
+#'   fieldtrip_coordpath = "~/Downloads/ft_data_ieegLoc/elec_acpc_f.mat",
+#'   preview = TRUE
+#' )
+#' 
+#' 
 #' END OF DOC
 NULL
 
@@ -140,6 +154,8 @@ raveio::safe_write_csv(
   file = save_path,
   row.names = FALSE
 )
+
+message("Coordinate file (csv) saved to:\n  ", save_path)
 
 
 if( preview ) {
