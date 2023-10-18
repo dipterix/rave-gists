@@ -1,5 +1,5 @@
 #' @author Zhengjia Wang
-#' @date July 09, 2023
+#' @date Oct 18, 2023
 #' @license Apache-2.0
 #' 
 #' @title Convert `FieldTrip` coordinates to RAVE electrode CSV
@@ -134,11 +134,21 @@ electrode_table <- data.frame(
   Coord_y = tkrRAS[2, ],
   Coord_z = tkrRAS[3, ],
   Label = label,
+  LabelPrefix = gsub(pattern = "[0-9]+$", "", x = label),
   T1R = chanpos[, 1],
   T1A = chanpos[, 2],
   T1S = chanpos[, 3],
-  Radius = 1
+  Radius = 1,
+  LocationType = "iEEG",
+  Hemisphere = "auto"
 )
+
+tmp <- lapply(split(electrode_table, electrode_table$LabelPrefix), function(sub_table) {
+  sub_table$Dimension <- nrow(sub_table)
+  sub_table$Interpolation <- sub_table$Dimension - 2
+  sub_table
+})
+electrode_table <- do.call("rbind", tmp)
 
 if(length(save_path) != 1 || is.na(save_path) || save_path == "") {
   subject <- raveio::RAVESubject$new(project_name = rave_project,
@@ -160,5 +170,10 @@ message("Coordinate file (csv) saved to:\n  ", save_path)
 
 if( preview ) {
   brain$set_electrodes(electrode_table)
-  brain$plot()
+  brain$set_electrode_values(electrode_table)
+  brain$plot(
+    controllers = list(
+      "Display Data" = "LabelPrefix"
+    )
+  )
 }
