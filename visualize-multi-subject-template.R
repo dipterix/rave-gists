@@ -30,34 +30,34 @@
 #' 
 #' template_visualizer(
 #'   config = list(
-#'     
+#' 
 #'     # project/subject as keys, or simply subject_code
 #'     "demo/DemoSubject" = list(
-#'       
+#' 
 #'       # In case your freesurfer folder is not at RAVE folder
 #'       fspath = NULL,
-#'       
-#'       # you can use either file path 
+#' 
+#'       # you can use either file path
 #'       values = "~/rave_data/data_dir/demo/DemoSubject/rave/meta/electrodes.csv"
 #'     ),
-#'     
+#' 
 #'     # or data.frame with column `Electrode` and `Time` (optional)
 #'     "YAEL/yael_demo_001" = list(
-#'       
+#' 
 #'       values = data.frame(
 #'         Electrode = rep(25:36, each = 10),
 #'         Time = rnorm(120),
 #'         pVal = runif(120)
 #'       )
-#'       
+#' 
 #'     )
 #'   ),
-#'   
+#' 
 #'   # Optional
 #'   use_template = FALSE,
 #'   template_brain = "cvs_avg35_inMNI152",
 #'   additional_atlases = NULL,
-#'   
+#' 
 #'   # color, range, display
 #'   palettes = list(
 #'     pVal = colorRampPalette(c("red", "orange", "steelblue"), bias = 3)(101)
@@ -78,50 +78,50 @@ NULL
 
 # ---- variables ---------------------------------------------------------------
 
-# length of 1 or more
-config <- list(
-  
-  # project/subject as keys, or simply subject_code
-  "demo/DemoSubject" = list(
-    
-    # In case your freesurfer folder is not at RAVE folder
-    fspath = NULL,
-    
-    # you can use either file path 
-    values = "~/rave_data/data_dir/demo/DemoSubject/rave/meta/electrodes.csv"
-  ),
-  
-  # or data.frame with column `Electrode` and `Time` (optional)
-  "YAEL/yael_demo_001" = list(
-    
-    values = data.frame(
-      Electrode = rep(25:36, each = 10),
-      Time = rnorm(120),
-      pVal = runif(120)
-    )
-    
-  )
-  
-)
-
-# TRUE for always use template, even if there is one subject
-use_template <- FALSE
-
-# "bert", "cvs_avg35", "cvs_avg35_inMNI152", "fsaverage", "fsaverage_sym", "N27
-template_brain <- "cvs_avg35_inMNI152"
-
-additional_atlases <- "aparc.a2009s+aseg"
-
-# color
-palettes <- list(
-  pVal = colorRampPalette(c("red", "orange", "steelblue"), bias = 3)(101)
-)
-value_ranges <- list(
-  pVal = c(0, 1)
-)
-controllers <- list(
-  "Display Data" = "pVal"
-)
+# # length of 1 or more
+# config <- list(
+#   
+#   # project/subject as keys, or simply subject_code
+#   "demo/DemoSubject" = list(
+#     
+#     # In case your freesurfer folder is not at RAVE folder
+#     fspath = NULL,
+#     
+#     # you can use either file path 
+#     values = "~/rave_data/data_dir/demo/DemoSubject/rave/meta/electrodes.csv"
+#   ),
+#   
+#   # or data.frame with column `Electrode` and `Time` (optional)
+#   "YAEL/yael_demo_001" = list(
+#     
+#     values = data.frame(
+#       Electrode = rep(25:36, each = 10),
+#       Time = rnorm(120),
+#       pVal = runif(120)
+#     )
+#     
+#   )
+#   
+# )
+# 
+# # TRUE for always use template, even if there is one subject
+# use_template <- FALSE
+# 
+# # "bert", "cvs_avg35", "cvs_avg35_inMNI152", "fsaverage", "fsaverage_sym", "N27
+# template_brain <- "cvs_avg35_inMNI152"
+# 
+# additional_atlases <- "aparc.a2009s+aseg"
+# 
+# # color
+# palettes <- list(
+#   pVal = colorRampPalette(c("red", "orange", "steelblue"), bias = 3)(101)
+# )
+# value_ranges <- list(
+#   pVal = c(0, 1)
+# )
+# controllers <- list(
+#   "Display Data" = "pVal"
+# )
 
 # ---- code body ---------------------------------------------------------------
 
