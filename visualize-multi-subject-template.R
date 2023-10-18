@@ -146,6 +146,7 @@ if(!file.exists(file.path(threeBrain::default_template_directory(), template_bra
   options("threeBrain.template_subject" = template_brain)
 }
 
+# ---- Get a list of brain instances in RAVE/YAEL
 brain_list <- lapply(names(config), function(subject) {
   item <- config[[subject]]
   
@@ -155,26 +156,37 @@ brain_list <- lapply(names(config), function(subject) {
   # convert to RAVE subject instance
   subject <- raveio::as_rave_subject(subject, strict = FALSE)
   
+  # Load freesurfer files. if fs is missing, then 
+  # rely on users providing `fspath`
   if( length(subject$freesurfer_path) == 1 && !is.na(subject$freesurfer_path) ) {
     brain <- raveio::rave_brain(subject)
   } else {
     brain <- threeBrain::threeBrain(path = item$fspath, subject_code = subject$subject_code)
-    brain$set_electrodes(subject$meta_data("electrodes"))
+    if(!is.null(brain)) {
+      brain$set_electrodes(subject$meta_data("electrodes"))
+    }
   }
+  
+  # If brain is not found or missing, just return NULL
   if(is.null(brain)) { return(NULL) }
   
   brain$set_electrode_values(item$values)
   brain
 })
 
-# Remove invalid brains
+# Remove invalid brains instances
 brain_list <- dipsaus::drop_nulls(brain_list)
+
+# If only one instance and `use_template` is false, then visualize the native brain
 if(!isTRUE(use_template) && length(brain_list) == 1) {
   brain <- brain_list[[1]]
 } else {
+  # otherwise use template
   brain <- threeBrain::merge_brain(.list = brain_list, template_surface_types = template_brain)
 }
 
+
+# PLOT!
 brain$plot(
   atlases = c("aparc+aseg", additional_atlases),
   palettes = palettes,
