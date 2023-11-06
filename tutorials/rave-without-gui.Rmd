@@ -1,0 +1,76 @@
+---
+title: "Import Data to RAVE without GUI"
+author: "Zhengjia Wang"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Run RAVE module to import `Native Structure` as pipelines without GUI. Please make sure RAVE is installed prior to following this document. 
+
+1. Please prepare all the raw data in the `~/rave_data/raw_dir`
+
+2. Open RStudio, create a new R script. You can type and save R commands here. To run the code, simply move the cursor to the corresponding line and enter `CTRL/Command + Enter`.
+
+```{r, results='hide'}
+# Load pipeline
+pipeline = raveio::pipeline("import_lfp_native")
+
+# View the pipeline structure
+pipeline$visualize(glimpse = TRUE)
+```
+
+
+3. Set inputs
+
+You can list all current inputs here
+
+```{r}
+# List all inputs
+pipeline$get_settings() |> dput()
+```
+
+To modify the inputs, use `pipeline$set_settings` function
+
+```{r}
+pipeline$set_settings(
+  skip_validation = FALSE,
+  import_setup__project_name = "test",
+  import_setup__subject_code = "DemoSubject",
+  import_channels__sample_rate = 2000,
+  import_channels__electrodes = "13-16,24",
+  import_blocks__session_block = c("008", "010"),
+  import_blocks__format = ".mat/.h5 file per electrode per block"
+)
+```
+
+The above script tells RAVE to create a subject
+
+* Project `test`;
+* Subject `DemoSubject`;
+* Sampling frequency: `2000` Hz;
+* Import the following electrode channels: `13,14,15,16,24`;
+* Import the following session folders: `008` and `010` (under `~/rave_data/raw_dir/DemoSubject`);
+* The raw data format is `".mat/.h5 file per electrode per block"`.
+
+The following data formats are supported
+
+* `".mat/.h5 file per electrode per block"`: Channels are stored in separate Matlab or HDF5 files in each session block;
+* `"Single .mat/.h5 file per block"`: All channels are stored in one matrix in one Matlab or HDF5 file in each session block (only one data is permitted in the file).
+* `"Single EDF(+) file per block"`: All channels are stored in one EDF file in each session block
+* `"Single BrainVision file (.vhdr+.eeg, .vhdr+.dat) per block"`: All channels are stored in one set of BrainVision files in each session block
+* `"Single BlackRock file (.nev+.nsx) per block"`: All channels are stored in one set of BlackRock Neurosignal files (.nev + ns1/ns2/.../ns6) in each session block
+
+4. Run the pipeline
+
+Execute the pipeline
+
+```{r, eval = FALSE}
+pipeline$run()
+```
+
+> Congratulations! You have imported a subject in RAVE. You can launch RAVE GUI or preprocess this subject in the next pipeline (`raveio::pipeline("notch_filter")`).
+
