@@ -1,0 +1,187 @@
+---
+title: "Some High-level RAVE Functions"
+author: "Zhengjia Wang"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+RAVE is GUI-driven, but it is not an omni tool that provides everything. At some point, you will need to program by yourself. RAVE provides both high-level and low-level functions for you to load data. This tutorial mainly introduce high-level classes and functions.
+
+* High-level functions require the subjects to be preprocessed using RAVE infrastructure. 
+
+### Subject utility
+
+You can get a subject class by
+
+```{r}
+subject = raveio::as_rave_subject("demo/DemoSubject")
+print(subject)
+```
+
+The RAVE subject class provides access to all the meta information. For example,
+
+```{r}
+# electrodes.csv
+electrode_table = subject$get_electrode_table()
+## Un-comment to print
+# print(electrode_table)
+
+# Trial epochs
+subject$epoch_names
+epoch = subject$get_epoch("auditory_onset")
+## Un-comment to print
+# print(epoch$table)
+
+# References
+subject$reference_names
+reference_table = subject$get_reference("default")
+## Un-comment to print
+# print(reference_table)
+```
+
+> Hint: Type `subject$` and wait or press `Tab` key in RStudio to get autocompletion for all possible fields and methods.
+
+### Electrode channels
+
+Once electrode channel data is imported, you can create electrode instances:
+
+```{r}
+# channel 14
+e14 = raveio::new_electrode(subject, 14)
+```
+
+To load data from this channel, you will need to set which epoch and trial intervals. If the channel is referenced, you might also want to set reference channel as well. 
+
+```{r}
+# set loading epoch
+epoch = subject$get_epoch("auditory_onset")
+e14$set_epoch(epoch)
+
+# set loading time window from 1s before onset and 2s after onset
+e14$trial_intervals = c(-1, 2)
+
+# set reference channel, using channel 13 as reference
+ref = raveio::new_reference(subject, 13)
+e14$set_reference(ref)
+```
+
+Now you can load voltage
+
+```{r}
+voltage_data = e14$load_data("voltage")
+str(dimnames(voltage_data))
+```
+
+In many scenarios, the loaded data could be too large for the computer memories. RAVE stores the loaded data as `FileArray` - a format that stores data on disk and loads data only when needed. To get the numerical values, simply use `[]` operator:
+
+```{r}
+vdata = voltage_data[drop = FALSE]
+# Snapshot the data
+str(vdata)
+```
+
+Let's plot the `vdata`
+
+```{r}
+# Convert to trial x time
+vdata_transform = t(vdata[,,1])
+ravetools::plot_signals(
+  vdata_transform,
+  sample_rate = 2000,
+  time_shift = -1,
+  ylab = "Trial",
+  main = "Channel 14 (ref=13) voltage over time by trials"
+)
+```
+
+### Pre-designed data repository
+
+If you have finished RAVE preprocessing (Notch filter, wavelet, epoch, re-referencing), instead of loading channels one-by-one, you can use built-in data loading functions. These functions start with `raveio::prepare_*`. For example, if you want to 
+
+1. load the power spectrogram for channel 14 and 15
+2. Baseline the data (baseline window: `-1~-0.5`)
+3. Subset trial data on stimulus `drive_av`
+4. Plot the average power percentage change
+
+```{r, fig.width=12, fig.height=6}
+# ---- Load data --------------------------------
+repository = raveio::prepare_subject_power(
+  subject,
+  electrodes = c(14, 15),
+  reference_name = "default",
+  epoch_name = "auditory_onset",
+  time_windows = c(-1, 2), 
+  verbose = FALSE
+)
+
+# ---- Baseline --------------------------------
+repository <- raveio::power_baseline(repository,
+                                     baseline_windows = c(-1, -0.5),
+                                     method = "percentage")
+
+# ---- Get baseline'd power, and subset --------
+trial_nums =
+  repository$epoch$trials[ repository$epoch$table$Condition %in% c("drive_av") ]
+
+sliced_data = subset(
+  repository$power$baselined,
+  Trial ~ Trial %in% trial_nums
+)
+str(sliced_data)
+
+# ---- Collapse by trial and electrodes and plot 
+# keep = c(2, 1, 4) means keep the 1st (Frequency), 2nd (Time) ,
+#   and 4th (Electrode channel) dimensions
+#   and transpose the first two, so the result is 
+#     Time x Frequency x Electrode
+avg_data = raveio::collapse2(x = sliced_data,
+                              keep = c(2, 1, 4),
+                              method = "mean")
+
+# plot: set up layout
+ravebuiltins:::layout_heat_maps(k = 2, max_col = 2)
+par(cex.lab = 2, cex.main = 3, cex.axis = 2,
+    mar = c(4.1, 6.1, 4.1, 1.1))
+
+# color palette
+pal = ravebuiltins::expand_heatmap("BlueWhiteRed")
+
+# plotting range
+zlim = max(avg_data) * c(-1, 1)
+
+# draw channel 14
+image(x = repository$time_points,
+      y = repository$frequency,
+      z = avg_data[,,1], col = pal, zlim = zlim,
+      xlab = "Time (s)", ylab = "Frequency (Hz)",
+      main = "Ch14 - drive_av")
+
+# draw channel 15
+image(x = repository$time_points,
+      y = repository$frequency,
+      z = avg_data[,,2], col = pal, zlim = zlim,
+      xlab = "Time (s)", ylab = "Frequency (Hz)",
+      main = "Ch15 - drive_av")
+
+# draw legend
+legend_ticks = seq(zlim[[1]], zlim[[2]], length.out = length(pal))
+image(y = legend_ticks, z = matrix(legend_ticks, nrow = 1),
+      col = pal, axes = FALSE, xlab = "", ylab = "Baseline % Change of Power")
+axis(side = 2, at = c(zlim, 0), labels = c(sprintf("%.2f", zlim), "0"))
+```
+
+
+
+### 3D viewer
+
+Here is a simple example for plotting the brain (more tutorials on 3D viewers will come soon)
+
+```{r, eval=FALSE}
+brain = raveio::rave_brain(subject)
+plot(brain)
+```
+
