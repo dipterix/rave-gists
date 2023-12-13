@@ -1,23 +1,36 @@
-## RAVE-iEEG Code Snippet
+# RAVE-iEEG Code Snippet
 
-### What's this
+## What's this
 
 This repository contains code snippets to perform `iEEG` (intracranial electroencephalography) analysis with [RAVE](https://rave.wiki/) framework code. RAVE provides powerful graphical user interface (GUI). However, there are more you can do without GUI. This repository is designed for RAVE users who want to do something that hasn't been integrated into RAVE's GUI
 
-### How to use this repository
+## How to use this repository
 
 Most scripts in this repository can be directly sourced into `R`. [[This example](dummy-snippet.R)] provides documentation on how to run the snippet.
 
-### Topics
+### Method 1:
 
-#### Automated data processing
+You can download the snippets, un-comment the code that declares the global variables, then run the script just like any other R script.
 
-* Auto preprocessing from BlackRock [[link](auto-preprocessing-from-blackrock.R)] [topic: auto-preprocessing-from-blackrock] [requested by BeauchampLab@Upenn]
+### Method 2
 
-#### Format conversion
+Use built-in function
 
-* `fst` to `HDF5` [[link](fileformat-convert-fst-to-hdf5.R)] [topic: fileformat-convert-fst-to-hdf5] [requested by: GoodmanLab@UAB, DABI@USC]
+## Build your own `rave-gists`
 
-#### Electrode localization, coordinates
+1. Download this repository in zip file
+2. Open file `rave-gists.Rproj` using RStudio
+3. Run the following command to restore the developing environment
 
-* Convert electrode coordinates: from `tkrRAS` or `scannerRAS` to MNI305 or MNI152 [[link](coordinate-compute-MNI-from-tkrRAS-or-scannerRAS.R)] [topic: coordinate-compute-MNI-from-tkrRAS-or-scannerRAS] [requested by: GoodmanLab@UAB]
+```r
+# similar to conda/venv in R
+install.packages("renv")
+
+# Download and install packages to current project
+renv::restore()
+
+# Ensure python for RAVE (optional but recommended)
+rpymat:::ensure_rpymat()
+```
+
+An isolated RAVE will be downloaded and installed on your project folder.
