@@ -14,7 +14,17 @@ You can download the snippets, un-comment the code that declares the global vari
 
 ### Method 2
 
-Use built-in function
+Use built-in function `raveio::load_snippet`
+
+```r
+fun <- raveio::load_snippet("dummy-snippet")
+
+# print function to show documentation
+fun
+
+# Call snippet as function
+fun("My inputs")
+```
 
 ## Build your own `rave-gists`
 
@@ -28,6 +38,9 @@ install.packages("renv")
 
 # Download and install packages to current project
 renv::restore()
+
+# Finalize installation
+ravemanager::finalize_installation()
 
 # Ensure python for RAVE (optional but recommended)
 rpymat:::ensure_rpymat()
