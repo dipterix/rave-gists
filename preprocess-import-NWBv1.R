@@ -274,7 +274,10 @@ if( wavelet_enabled ) {
 
 
 # Run the pipelines
-pipeline_collection$run()
+# pipeline_collection$run()
+pipeline_collection$build_pipelines()
+scheduler <- pipeline_collection$get_scheduler()
+scheduler$eval(scheduler$target_table$Names)
 
 # write electrode information
 electrode_labels <- do.call(
