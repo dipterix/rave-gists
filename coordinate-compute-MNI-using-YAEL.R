@@ -168,7 +168,7 @@ if( preview ) {
   
   # Remove electrodes temporarily set on template object
   template_brain$template_object$electrodes$objects <- list()
-  template_brain$plot()
+  print(template_brain$plot())
 }
 
 # Return if this script is called as a function
