@@ -45,13 +45,16 @@
 #' 
 #' yael_postproc <- raveio::load_snippet("coordinate-compute-MNI-using-YAEL")
 #' 
-#' yael_postproc(
+#' result <- yael_postproc(
 #'   t1w_path = '~/rave_data/raw_dir/Pt003/rave-imaging/fs/mri/orig/001.mgz',
 #'   project_name = "YAEL",
 #'   subject_code = "Pt003",
 #'   template = "mni_icbm152_nlin_asym_09a",
 #'   preview = TRUE
 #' )
+#' 
+#' result$subject
+#' result$electrode_table
 #' 
 #' 
 #' END OF DOC
@@ -153,7 +156,7 @@ if( preview ) {
   )
   
   # Randomly pick an electrode to plot
-  electrode_to_plot <- sample(nrow(electrode_table), 1)
+  electrode_to_plot <- sample(electrode_table$Electrode, 1)
   message("Plotting anatomical slices for randomly selected electrode contact: ", electrode_to_plot)
   
   # Plot anat slices on native subject
@@ -164,17 +167,22 @@ if( preview ) {
   template_brain$template_object$plot_electrodes_on_slices(electrodes_to_plot = electrode_to_plot, zoom = 2)
   
   message("Generating 3D viewers")
-  print(native_brain$plot())
+  native_viewer <- native_brain$plot(title = sprintf("Native Brain - %s", subject_code))
+  native_viewer_path <- threeBrain::save_brain(native_viewer, tempfile(fileext = ".html"))
+  utils::browseURL(native_viewer_path)
   
   # Remove electrodes temporarily set on template object
   template_brain$template_object$electrodes$objects <- list()
-  print(template_brain$plot())
+  template_viewer <- template_brain$plot(title = "Template Brain - MNI152")
+  template_viewer_path <- threeBrain::save_brain(template_viewer, tempfile(fileext = ".html"))
+  utils::browseURL(template_viewer_path)
 }
 
 # Return if this script is called as a function
 invisible(list(
   subject = subject,
   native = native_brain,
-  template = template_brain
+  template = template_brain,
+  electrode_table = electrode_table
 ))
 
