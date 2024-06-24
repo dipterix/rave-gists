@@ -46,7 +46,7 @@ NULL
 # Pleas uncomment the following variables
 
 # path_to_mni_coordinate_BIDS <- "~/Downloads/sub-HUP060_ses-presurgery_acq-seeg_space-fsaverage_electrodes.tsv"
-# template_brain <- "N27"
+# template_brain <- "cvs_avg35_inMNI152"
 # na_strings <- "n/a"
 # 
 # electrode_value <- function(coord) {
@@ -65,59 +65,90 @@ NULL
 
 template_brain %?<-% "N27"
 na_strings  %?<-% "n/a"
-electrode_value %?<-% NULL
+electrode_value %?<-% path_to_mni_coordinate_BIDS
 data_name %?<-% "Value"
 data_color %?<-% c("orange", "dodgerblue3", "darkgreen", 
                 "orangered", "brown", "purple3")
 controllers %?<-% NULL
 controllers <- as.list(controllers)
 
-
-coords <- read.table(path_to_mni_coordinate_BIDS, na.strings = "n/a", header = TRUE)
+if(endsWith(tolower(path_to_mni_coordinate_BIDS), "csv")) {
+  coords <- raveio::safe_read_csv(path_to_mni_coordinate_BIDS, na.strings = "n/a", header = TRUE)
+} else {
+  coords <- read.table(path_to_mni_coordinate_BIDS, na.strings = "n/a", header = TRUE)
+}
 
 coords$Electrode <- seq_len(nrow(coords))
 coords$Label <- coords$name
-
-# We use template so this MNI305 is important
-coords$MNI305_x <- coords$x
-coords$MNI305_y <- coords$y
-coords$MNI305_z <- coords$z
-
-# Coord_xyz is not important since we use MNI coordinates on template brain
-coords$Coord_x <- ifelse(is.na(coords$x), 0, coords$x)
-coords$Coord_y <- ifelse(is.na(coords$y), 0, coords$y)
-coords$Coord_z <- ifelse(is.na(coords$z), 0, coords$z)
+coords$Radius %?<-% 1
 
 if(!file.exists(file.path(threeBrain::default_template_directory(), template_brain))) {
   threeBrain::download_template_subject(template_brain)
 }
 
 brain <- threeBrain::merge_brain(template_subject = template_brain)
-brain$template_object$set_electrodes(coords)
+
+if( identical(template_brain, "cvs_avg35_inMNI152") ) {
+  brain$template_object$xfm <- solve(raveio::MNI305_to_MNI152)
+}
+
+tryCatch({
+  
+  brain$template_object$set_electrodes(coords, coord_sys = "MNI152")
+  
+}, error = function(e) {
+  
+  # We use template so this MNI305 is important
+  coords$MNI305_x <- coords$x
+  coords$MNI305_y <- coords$y
+  coords$MNI305_z <- coords$z
+  
+  # Coord_xyz is not important since we use MNI coordinates on template brain
+  coords$Coord_x <- ifelse(is.na(coords$x), 0, coords$x)
+  coords$Coord_y <- ifelse(is.na(coords$y), 0, coords$y)
+  coords$Coord_z <- ifelse(is.na(coords$z), 0, coords$z)
+  brain$template_object$set_electrodes(coords)
+  
+})
 
 
 palettes <- list()
 
 if( is.function(electrode_value) ) {
   value <- electrode_value( coords )
-  palettes[[data_name]] <- data_color
+} else if (is.character(electrode_value)) {
+  if(endsWith(tolower(electrode_value), "csv")) {
+    value <- raveio::safe_read_csv(electrode_value, na.strings = "n/a", header = TRUE)
+  } else {
+    value <- read.table(electrode_value, na.strings = "n/a", header = TRUE)
+  }
 } else if (length(electrode_value) > 0) {
   value <- electrode_value
-  palettes[[data_name]] <- data_color
 } else {
   value <- NULL
 } 
 
+data_name <- data_name[data_name %in% names(value)]
+if( length(data_name) ) {
+  palettes[[data_name]] <- data_color
+}
+
 if(!is.null(value)) {
-  coords[[data_name]] <- value
+  coords[ names(value) ] <- value
 }
 
 brain$template_object$set_electrode_values(coords)
 
-controllers[["Display Data"]] <- data_name
-controllers[["Voxel Type"]]  %?<-% "aparc_aseg"
-controllers[["Voxel Display"]]  %?<-% "side camera"
-controllers[["Voxel Opacity"]]  %?<-% 0.3
+if(length(data_name)) {
+  controllers[["Display Data"]] <- data_name[[1]]
+}
+# controllers[["Voxel Type"]]  %?<-% "aparc_aseg"
+# controllers[["Voxel Display"]]  %?<-% "side camera"
+# controllers[["Voxel Opacity"]]  %?<-% 0.3
+controllers[["Left Opacity"]] <- 0.3
+controllers[["Right Opacity"]] <- 0.3
+controllers[["Left Mesh Clipping"]] <- 0.3
+controllers[["Right Mesh Clipping"]] <- 0.3
 
 
 brain$plot(
