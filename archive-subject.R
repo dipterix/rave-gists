@@ -49,6 +49,14 @@ if(!length(includes)) {
 # No cache will save around 50% space
 path <- normalizePath(path, mustWork = FALSE)
 
+work_path <- file.path(
+  raveio::cache_root(),
+  "_archive",
+  subject_instance$project_name,
+  subject_instance$subject_code,
+  "archive"
+)
+work_path <- raveio::dir_create2(work_path)
 raveio::archive_subject(
   subject = subject_instance,
   path = path,
@@ -56,7 +64,8 @@ raveio::archive_subject(
   config = list(
     orignal_signals = list(include_all = FALSE), 
     processed_data = list(include_cache = FALSE)
-  )
+  ), 
+  work_path = work_path
 )
 
 path
