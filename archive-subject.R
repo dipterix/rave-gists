@@ -6,6 +6,7 @@
 #' @param path where to save to subject, default is cache directory
 #' @param includes data to include in the archive, see 
 #' `?raveio::archive_subject`; default is all but original raw signal data
+#' @param zip_flags flags for zip command; default is to accept default
 #' @returns Path to archived file
 #' END OF DOC
 NULL
@@ -21,6 +22,7 @@ NULL
 subject_instance <- raveio::as_rave_subject(subject)
 
 `%?<-%` <- dipsaus::`%?<-%`
+zip_flags %?<-% NULL
 path %?<-% NA
 
 if(length(path) != 1 || is.na(path)) {
@@ -65,7 +67,8 @@ raveio::archive_subject(
     orignal_signals = list(include_all = FALSE), 
     processed_data = list(include_cache = FALSE)
   ), 
-  work_path = work_path
+  work_path = work_path,
+  zip_flags = zip_flags
 )
 
 path
