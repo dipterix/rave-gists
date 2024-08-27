@@ -12,9 +12,9 @@ NULL
 
 # ---- Global variables --------------------------------------------------------
 
-subject <- "demo/DemoSubject"
-path <- NA # or NULL to accept default
-includes <- NULL # default is to include all
+# subject <- "demo/DemoSubject"
+# path <- NA # or NULL to accept default
+# includes <- NULL # default is to include all
 
 # ---- Code --------------------------------------------------------------------
 
