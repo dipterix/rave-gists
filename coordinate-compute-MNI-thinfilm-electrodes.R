@@ -91,6 +91,7 @@ NULL
 
 project_name %?<-% "YAEL"
 
+T1w %?<-% NULL
 CT %?<-% NULL
 T2w %?<-% NULL
 fGATIR %?<-% NULL
@@ -116,7 +117,11 @@ save_as %?<-% "electrodes.csv"
 
 ### Check variables and ensure the environment
 if( normalization && !rpyANTs::ants_available() ) {
-  ravemanager::configure_python()
+  if(length(T1w)) {
+    ravemanager::configure_python()
+  } else {
+    raveio::catgl("Normalization will not run as `T1w` is not specified")
+  }
 }
 
 if( volume_surface_interpolator < 0 ) {
