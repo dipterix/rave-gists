@@ -126,7 +126,8 @@ if( normalization && !rpyANTs::ants_available() ) {
   if(length(T1w)) {
     ravemanager::configure_python()
   } else {
-    raveio::catgl("Normalization will not run as `T1w` is not specified", level = "WARNING")
+    raveio::catgl("`T1w` is not specified... Skipping normalization", level = "WARNING")
+    normalization <- FALSE
   }
 }
 
