@@ -191,7 +191,7 @@ if( normalization ) {
 
 
 # transform thin-film electrode contacts to MNI coordinate space
-electrode_table = transform_thinfilm_to_mni152(
+electrode_table = raveio::transform_thinfilm_to_mni152(
   subject = subject,
   flip_hemisphere = flip_hemisphere,
   interpolator = volume_surface_interpolator,
