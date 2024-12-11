@@ -7,8 +7,14 @@
 #' @param subject_code (string, mandatory) subject code
 #' @param project_name (string, mandatory) which project contains the localized
 #' electrode coordinates
-#' @param T1w,CT,T2w,fGATIR,preopCT,FLAIR,T1wContrast (string) paths to brain
-#' images; `T1w` is mandatory. All other images are optional
+#' @param T1w (string, optional) path to original `T1w` image, must exist if 
+#' non-linear normalization is needed
+#' @param CT (string, optional) path to `CT`
+#' @param T2w (string, optional) path to `T2w`
+#' @param fGATIR (string, optional) path to `fGATIR`
+#' @param preopCT (string, optional) path to preop-`CT`
+#' @param FLAIR (string, optional) path to `FLAIR`
+#' @param T1wContrast (string, optional) path to `T1w` with contrast
 #' @param normalization (logical, optional) whether to run non-linear
 #' normalization; default is depended on whether `ANTsPyx` is installed.
 #' Please make sure `ANTsPyx` is installed if you want this feature.
