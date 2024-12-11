@@ -126,7 +126,7 @@ if( normalization && !rpyANTs::ants_available() ) {
   if(length(T1w)) {
     ravemanager::configure_python()
   } else {
-    raveio::catgl("Normalization will not run as `T1w` is not specified")
+    raveio::catgl("Normalization will not run as `T1w` is not specified", level = "WARNING")
   }
 }
 
@@ -173,7 +173,7 @@ if(!length(subject$get_electrode_table())) {
 
 ### map T1 to template (non-linear)
 if( normalization ) {
-  raveio::catgl("Coregister images and normalize T1w to {template_name}")
+  raveio::catgl("Coregister images and normalize T1w to {template_name}", level = "INFO")
   raveio::yael_preprocess(
     subject_code = subject_code,
     t1w_path = modalities$T1w,
@@ -217,7 +217,9 @@ if( !isFALSE(preview) ) {
   
   if(is.character(preview)) {
     threeBrain::save_brain(widget, path = preview, title = subject$subject_code)
+    raveio::catgl("3D viewer preview saved to:\n  {preview}", level = "INFO")
   } else {
+    raveio::catgl("Rendering 3D preview...", level = "INFO")
     print(widget)
   }
 }
@@ -240,7 +242,8 @@ if(length(save_as)) {
     file = save_as,
     row.names = FALSE
   )
-  save_as <- raveio::normalize_path(save_as)
+  save_as <- normalizePath(save_as, winslash = "/")
+  raveio::catgl("Electrode path saved:\n  {save_as}", level = "INFO")
 }
 
 # When running as snippet, return this list
