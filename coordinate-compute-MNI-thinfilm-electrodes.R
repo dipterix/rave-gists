@@ -173,7 +173,7 @@ if(!length(subject$get_electrode_table())) {
 }
 
 ### map T1 to template (non-linear)
-if( normalization ) {
+if( normalization && length(T1w) == 1 ) {
   raveio::catgl("Coregister images and normalize T1w to {template_name}", level = "INFO")
   raveio::yael_preprocess(
     subject_code = subject_code,
