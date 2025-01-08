@@ -14,6 +14,11 @@
 #' @param contact_radius (optional) radius of the contacts; default is to be 
 #' determined by `Radius` column in electrode table, or 1 mm (or 2 mm diameters) 
 #' if nothing is found
+#' @param contact_channels (optional) contacts to be burned; default is
+#' `NULL` (all contacts); alternatively you can specify `c(1:12)` for burning
+#' contacts of the first 1-12 channels. Missing positions will be ignored.
+#' WARNING: The contacts order will be ignored, so if you are using `color`, 
+#' the order of `color` is consistent with the `electrodes.csv`
 #' @param reshape (optional) for super-resolution; set to `FALSE` to use the 
 #' same resolution as the underlay, or `TRUE` to double the imaging resolution, 
 #' or a number of three (such as `c(512, 512, 512)`) to force the images 
@@ -60,6 +65,9 @@ NULL
 # # automatically determined from electrodes.csv
 # contact_radius <- NA
 # 
+# # Which contact(s) to plot? default is NULL (all)
+# contact_channels <- NULL
+# 
 # reshape <- TRUE
 # 
 # alpha_channel <- FALSE
@@ -87,6 +95,8 @@ alpha_channel %?<-% FALSE
 
 preview %?<-% NULL
 
+contact_channels %?<-% NULL
+
 
 # ---- Start! ------------------------------------------------------------------
 subject <- raveio::RAVESubject$new(project_name = project_name, subject_code = subject_code)
@@ -98,7 +108,13 @@ if(is.na(t1_path)) {
 
 # get electrode coordinates in native T1 MRI
 electrode_table <- subject$get_electrode_table()
-tkr_ras <- electrode_table[, c("Coord_x", "Coord_y", "Coord_z")]
+
+if(!length(contact_channels)) {
+  tkr_ras <- electrode_table[, c("Coord_x", "Coord_y", "Coord_z")]
+} else {
+  tkr_ras <- electrode_table[electrode_table$Electrode %in% contact_channels, c("Coord_x", "Coord_y", "Coord_z")]
+}
+
 is_valid <- rowSums(tkr_ras^2) > 0
 scan_ras <- brain$electrodes$apply_transform_points(tkr_ras, from = "tkrRAS", to = "scannerRAS")
 scan_ras[!is_valid, ] <- NA
