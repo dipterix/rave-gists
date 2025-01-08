@@ -49,8 +49,12 @@ preview %?<-% TRUE
 
 # ---- start!
 
-subject <- raveio::RAVESubject$new(project_name = project_name, subject_code = subject_code)
+subject <- raveio::RAVESubject$new(project_name = project_name, subject_code = subject_code, strict = FALSE)
 brain <- raveio::rave_brain(subject)
+
+if(is.null(brain)) {
+  stop("RAVE subject does not have brain objects.")
+}
 
 volume <- threeBrain::read_volume(roi_path)
 
