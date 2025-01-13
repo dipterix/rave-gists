@@ -26,6 +26,8 @@
 #' @param alpha_channel (optional) whether the returning image should be 
 #' transparent (`RGBA`) or just `RGB` colors; default is `FALSE` due to many 
 #' legacy programs don't support `RGBA` NIfTI formats
+#' @param blank_underlay whether to use blank image as underlay instead of
+#' `T1` image? Default is `TRUE`
 #' @param preview (optional) integers to preview the contacts; default is 
 #' `NULL`, set to `1` or `c(1,2,3)` to preview the contacts overlay.
 #' 
@@ -96,6 +98,7 @@ alpha_channel %?<-% FALSE
 preview %?<-% NULL
 
 contact_channels %?<-% NULL
+blank_underlay %?<-% TRUE
 
 
 # ---- Start! ------------------------------------------------------------------
@@ -134,7 +137,8 @@ burned <- ieegio::burn_volume(
   radius = contact_radius,
   reshape = reshape,
   alpha = alpha_channel, 
-  preview = preview
+  preview = preview, 
+  blank_underlay = blank_underlay
 )
 
 if(length(save_path) != 1) {
