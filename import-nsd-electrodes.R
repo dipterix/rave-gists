@@ -51,13 +51,27 @@
 #' @returns A list of paths where the `electrodes.csv` and RAVE-3DViewer is
 #' stored. 
 #' 
+#' 
+#' @examples
+#' 
+#' To run the script, you can either download the script, uncomment the 
+#' `Global variables` section below, or use `ravepipeline::load_snippet`
+#' function:
+#' 
+#' import_nsd_electrodes <- ravepipeline::load_snippet("import-nsd-electrodes")
+#' import_nsd_electrodes(
+#'   bids_project_path = "~/Downloads/nsd_data/NSDiEEG_PennShare", 
+#'   bids_subject_code = "06", save_to_bids = FALSE)
+#' 
 #' END OF DOC
 NULL
+
+
 
 # ---- Global variables --------------------------------------------------------
 
 # # Mandatory inputs
-# bids_project_path <- "/Users/dipterix/rave_data/nsd_data/NSDiEEG_PennShare"
+# bids_project_path <- "~/Downloads/nsd_data/NSDiEEG_PennShare"
 # bids_subject_code <- "06"
 # 
 # # Optional inputs: uncomment to change
