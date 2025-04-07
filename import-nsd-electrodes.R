@@ -60,18 +60,17 @@
 #' 
 #' import_nsd_electrodes <- ravepipeline::load_snippet("import-nsd-electrodes")
 #' import_nsd_electrodes(
-#'   bids_project_path = "~/Downloads/nsd_data/NSDiEEG_PennShare", 
+#'   bids_project_path = "~/Downloads/nsd_data/NSDiEEG", 
 #'   bids_subject_code = "06", save_to_bids = FALSE)
 #' 
 #' END OF DOC
 NULL
 
 
-
 # ---- Global variables --------------------------------------------------------
 
 # # Mandatory inputs
-# bids_project_path <- "~/Downloads/nsd_data/NSDiEEG_PennShare"
+# bids_project_path <- "~/Downloads/nsd_data/NSDiEEG"
 # bids_subject_code <- "06"
 # 
 # # Optional inputs: uncomment to change
@@ -216,13 +215,13 @@ bids_ieeg_files <- bidsr::query_bids(bids_subject, search_params = list(
   )
 ))
 
+message("Found the following electrode coordinate files:")
+print(bids_ieeg_files)
+
 # Find electrodes
 electrode_files <- bids_ieeg_files[bids_ieeg_files$suffix %in% "electrodes", ]
 
-if(nrow(electrode_files)) {
-  message("Found the following electrode files:")
-  print(bids_ieeg_files)
-} else {
+if(!nrow(electrode_files)) {
   stop(sprintf("Unable to find any electrode coordinate file for subject `sub-%s`", bids_subject_code))
 }
 
@@ -478,3 +477,22 @@ invisible(list(
   electrode_path = file.path(rave_subject$meta_path, "electrodes.csv"),
   viewer_path = viewer_path
 ))
+
+
+
+# Debug code used to generate documentation
+
+# reprex::reprex({
+#   import_nsd_electrodes <- ravepipeline::load_snippet("import-nsd-electrodes")
+# 
+#   # Print documentation
+#   print(import_nsd_electrodes)
+# 
+#   # bids_project_path = "~/rave_data/nsd_data/NSDiEEG_PennShare"
+#   # bids_subject_code = "06"
+#   # source("/Users/dipterix/Dropbox (Personal)/projects/rave-gists/import-nsd-electrodes.R", local = TRUE)
+# 
+#   import_nsd_electrodes(
+#     bids_project_path = "~/rave_data/nsd_data/NSDiEEG_PennShare",
+#     bids_subject_code = "06", save_to_bids = FALSE)
+# })
