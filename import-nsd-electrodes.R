@@ -58,10 +58,36 @@
 #' `Global variables` section below, or use `ravepipeline::load_snippet`
 #' function:
 #' 
+#' 
 #' import_nsd_electrodes <- ravepipeline::load_snippet("import-nsd-electrodes")
+#' 
+#' # Print this documentation
+#' print(import_nsd_electrodes)
+#' 
 #' import_nsd_electrodes(
-#'   bids_project_path = "~/Downloads/nsd_data/NSDiEEG", 
+#'   bids_project_path = "~/Downloads/nsd_data/NSDiEEG",
 #'   bids_subject_code = "06", save_to_bids = FALSE)
+#' #> Migrating `freesurfer` directory with overwrite: FALSE
+#' #>   Source: ~/Downloads/nsd_data/NSDiEEG/derivatives/freesurfer/sub-06
+#' #>   Destination: ~/rave_data/raw_dir/S06/rave-imaging/fs
+#' #> Found the following electrode coordinate files:
+#' #>          parsed data_type     suffix extension    sub    ses          space
+#' #>          <AsIs>    <char>     <char>    <char> <char> <char>         <char>
+#' #> 1: sub-06/s....      ieeg electrodes       tsv     06 ieeg01           <NA>
+#' #> 2: sub-06/s....      ieeg electrodes       tsv     06 ieeg01 MNI152NLin2009
+#' #> 3: sub-06/s....      ieeg electrodes       tsv     06 ieeg01         MNI305
+#' #> Using BIDS tabular to generate RAVE electrodes.csv: 
+#' #>  ~/Downloads/nsd_data/NSDiEEG/./sub-06/ses-ieeg01/ieeg/sub-06_ses-ieeg01_electrodes.tsv
+#' #> Compute T1w scanner RAS -> FreeSurfer surface coordinates...
+#' #> `Destrieux_label_text` found... using existing labeling.
+#' #> Found MNI152 from BIDS tabular
+#' #>  ~/Downloads/nsd_data/NSDiEEG/./sub-06/ses-ieeg01/ieeg/sub-06_ses-ieeg01_space-MNI152NLin2009_electrodes.tsv
+#' #> Saving the electrode coordinates
+#' #> Computing mapping to fsaverage by projecting contacts to surface: smoothwm
+#' #> Saving to `rave/meta/electrodes.csv` with MNI152 and fsaverage mapping.
+#' #> Saving the viewer to: 
+#' #>   ~/rave_data/raw_dir/S06/rave-imaging/nsd_import.html
+#' 
 #' 
 #' END OF DOC
 NULL
@@ -209,11 +235,10 @@ if(is.null(brain)) {
 bids_ieeg_files <- bidsr::query_bids(bids_subject, search_params = list(
   storage = "raw",
   data_types = "ieeg",
-  suffixes = "electrodes",
-  entity_filters = list(
-    sub ~ sub == bids_subject_code
-  )
+  suffixes = "electrodes"
 ))
+
+bids_ieeg_files <- bids_ieeg_files[bids_ieeg_files$sub %in% bids_subject$subject_code, ]
 
 message("Found the following electrode coordinate files:")
 print(bids_ieeg_files)
@@ -477,22 +502,3 @@ invisible(list(
   electrode_path = file.path(rave_subject$meta_path, "electrodes.csv"),
   viewer_path = viewer_path
 ))
-
-
-
-# Debug code used to generate documentation
-
-# reprex::reprex({
-#   import_nsd_electrodes <- ravepipeline::load_snippet("import-nsd-electrodes")
-# 
-#   # Print documentation
-#   print(import_nsd_electrodes)
-# 
-#   # bids_project_path = "~/rave_data/nsd_data/NSDiEEG_PennShare"
-#   # bids_subject_code = "06"
-#   # source("/Users/dipterix/Dropbox (Personal)/projects/rave-gists/import-nsd-electrodes.R", local = TRUE)
-# 
-#   import_nsd_electrodes(
-#     bids_project_path = "~/rave_data/nsd_data/NSDiEEG_PennShare",
-#     bids_subject_code = "06", save_to_bids = FALSE)
-# })
