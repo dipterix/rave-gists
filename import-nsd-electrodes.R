@@ -38,6 +38,9 @@
 #' the leading `sub-`
 #' @param rave_project_name (optional, string) project name in RAVE, default is 
 #' the folder name of the `bids_project_path`
+#' @param rave_subject_prefix (optional, string) subject code prefix in RAVE,
+#' default is the BIDS project name followed by an underscore ("_"). 
+#' Notice RAVE does not recommend dash in its subject code
 #' @param freesurfer_name (optional, string) `FreeSurfer` folder name under
 #' the derivatives folder; default is `'freesurfer'`; change this argument 
 #' if the folder name includes version numbers (e.g. `freesurfer-7.4.1`)
@@ -101,6 +104,7 @@ NULL
 # 
 # # Optional inputs: uncomment to change
 # rave_project_name <- NA
+# rave_subject_prefix <- sprintf("%s_", basename(bids_project_path))
 # freesurfer_name <- "freesurfer"
 # override_freesurfer <- FALSE
 # save_to_bids <- TRUE
@@ -117,7 +121,7 @@ rave_project_name %?<-% NA
 freesurfer_name %?<-% "freesurfer"
 override_freesurfer %?<-% FALSE
 save_to_bids %?<-% TRUE
-
+rave_subject_prefix %?<-% sprintf("%s_", basename(bids_project_path))
 
 # ensure fsaverage template; download if not exists
 ensure_threeBrain_template <- function(template_name) {
@@ -148,7 +152,7 @@ bids_subject <- bidsr::bids_subject(project = bids_project, subject_code = bids_
 # sub-06 will be `S06` in RAVE
 rave_subject <- raveio::RAVESubject$new(
   project_name = rave_project_name,
-  subject_code = sprintf("S%s", bids_subject@subject_code),
+  subject_code = sprintf("%s%s", rave_subject_prefix, bids_subject@subject_code),
   strict = FALSE
 )
 
@@ -232,12 +236,23 @@ if(is.null(brain)) {
 # Parse files in BIDS folder with filters (for the subject)
 # datatype: ieeg (raw)
 # suffix+extension: _electrodes.tsv
+
+# bids_ieeg_files <- bidsr::query_bids(bids_subject, search_params = list(
+#   storage = "raw",
+#   data_types = "ieeg",
+#   suffixes = "electrodes",
+#   entity_filters = list(
+#     sub ~ sub %in% bids_subject$subject_code
+#   )
+# ))
+
 bids_ieeg_files <- bidsr::query_bids(bids_subject, search_params = list(
   storage = "raw",
   data_types = "ieeg",
   suffixes = "electrodes"
 ))
 
+# Select subject with the correct subject code
 bids_ieeg_files <- bids_ieeg_files[bids_ieeg_files$sub %in% bids_subject$subject_code, ]
 
 message("Found the following electrode coordinate files:")
