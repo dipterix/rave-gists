@@ -19,6 +19,12 @@
 #' @examples
 #' 
 #' 
+#' openneuro <- raveio::load_snippet("download-openneuro")
+#' 
+#' # download https://openneuro.org/datasets/ds005953
+#' # default directory is ~/rave_data/bids_dir/ds005953
+#' openneuro("ds005953")
+#' 
 #' 
 #' 
 #' END OF DOC
@@ -32,6 +38,7 @@ NULL
 ## Optional
 # tag <- NULL
 # subjects <- NULL
+# parent_dir <- raveio::raveio_getopt("bids_data_dir", "~/rave_data/bids_dir")
 
 
 # ---- Code body ---------------------------------------------------------------
@@ -69,3 +76,6 @@ if(!length(subjects)) {
   include <- as.list(sprintf("*sub-%s/*", subjects))
   openneuro$download(dataset = dataset, target_dir = target_dir, include = include, tag = tag)
 }
+
+message("OpenNeuro dataset [", dataset, "] downloaded to:\n\t", target_dir)
+
