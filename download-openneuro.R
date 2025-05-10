@@ -16,6 +16,8 @@
 #' is `raveio::raveio_getopt("bids_data_dir")` (if unset, default path is
 #' `~/rave_data/bids_dir` under your home directory)
 #' 
+#' @returns Returns the path to downloaded BIDS project folder
+#' 
 #' @examples
 #' 
 #' 
@@ -78,4 +80,6 @@ if(!length(subjects)) {
 }
 
 message("OpenNeuro dataset [", dataset, "] downloaded to:\n\t", target_dir)
+
+invisible(target_dir)
 
