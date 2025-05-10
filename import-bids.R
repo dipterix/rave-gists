@@ -51,9 +51,23 @@
 #' 
 #' # You can combine snippet "download-openneuro"
 #' openneuro <- raveio::load_snippet("download-openneuro")
+#' 
 #' bids_project_path <- openneuro("ds005953")
 #' 
 #' print(bids_project_path)
+#' #> "~/rave_data/bids_dir/ds005953"
+#' 
+#' # Load subject `01`
+#' import_bids <- raveio::load_snippet("import-bids")
+#' 
+#' 
+#' # This demo dataset does not have FreeSurfer, 
+#' # but it has derivatives/surface folder
+#' import_bids(
+#'   bids_project_path = bids_project_path,
+#'   bids_subject_code = "01",
+#'   freesurfer_name = "surface"
+#' )
 #' 
 #' 
 #' END OF DOC
