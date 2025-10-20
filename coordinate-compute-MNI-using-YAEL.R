@@ -49,7 +49,7 @@
 #'   t1w_path = '~/rave_data/raw_dir/Pt003/rave-imaging/fs/mri/orig/001.mgz',
 #'   project_name = "YAEL",
 #'   subject_code = "Pt003",
-#'   template = "mni_icbm152_nlin_asym_09a",
+#'   template = "mni_icbm152_nlin_asym_09b",
 #'   preview = TRUE
 #' )
 #' 
@@ -67,7 +67,7 @@ NULL
 # subject_code <- "Pt003"
 # # can be a/b/c. Normally MNI152 refers to MNI152 a or b
 # # A is faster (~10 min), B is more accurate (~1 hr)
-# template <- "mni_icbm152_nlin_asym_09a"
+# template <- "mni_icbm152_nlin_asym_09b"
 
 # ---- code body ---------------------------------------------------------------
 
@@ -75,19 +75,78 @@ NULL
 `%?<-%` <- dipsaus::`%?<-%`
 
 preview %?<-% TRUE
-template %?<-% "mni_icbm152_nlin_asym_09a"
-
-# normalize T1w image
-raveio::yael_preprocess(
-  subject_code = subject_code,
-  t1w_path = t1w_path,
-  normalize_template = "mni_icbm152_nlin_asym_09a"
-)
+template %?<-% "mni_icbm152_nlin_asym_09b"
 
 # Load subject
-subject <- raveio::RAVESubject$new(project_name = project_name,
-                                   subject_code = subject_code,
-                                   strict = FALSE)
+subject <- ravecore::RAVESubject$new(project_name = project_name,
+                                     subject_code = subject_code,
+                                     strict = FALSE)
+
+message("Normalizing native T1w to MNI152 (a long process)")
+
+# normalize T1w image
+ravecore::cmd_run_yael_preprocess(
+  subject = subject,
+  t1w_path = t1w_path,
+  normalize_template = template, 
+  run_recon_all = FALSE
+)
+
+job_id <- ravepipeline::start_job(
+  fun = function(subject, template_name) {
+    yael_process <- ravecore::as_yael_process(subject)
+    template_mapping <- yael_process$get_template_mapping(template_name = template_name)
+    if(is.null(template_mapping) && template_name == 'mni_icbm152_nlin_asym_09b') {
+      # This is a fallback when RAM is small
+      template_name <- "mni_icbm152_nlin_asym_09a"
+      template_mapping <- yael_process$get_template_mapping(
+        template_name = template_name)
+    }
+    if(is.null(template_mapping)) {
+      return(simpleError("No mapping to template"))
+    }
+    
+    mni_template_path <- function(...) {
+      path <- ravepipeline::raveio_getopt(
+        key = "mni_template_root",
+        default = file.path(threeBrain::default_template_directory(), "templates")
+      )
+      ravecore:::path_abs(ravecore:::file_path(path, ...), must_work = FALSE)
+    }
+    
+    # get template from template
+    if(template_name %in% c(
+      "mni_icbm152_nlin_asym_09b",
+      "mni_icbm152_nlin_asym_09a",
+      "mni_icbm152_nlin_asym_09c"
+    )) {
+      atlas_folders <- mni_template_path(c(
+        "mni_icbm152_nlin_asym_09c",
+        "mni_icbm152_nlin_asym_09a",
+        "mni_icbm152_nlin_asym_09b"
+      ), "atlases")
+    } else {
+      atlas_folders <- mni_template_path(template_name, "atlases")
+    }
+    lapply(atlas_folders, function(atlas_folder) {
+      yael_process$generate_atlas_from_template(
+        template_name = template_name,
+        atlas_folder = atlas_folder,
+        verbose = verbose,
+        surfaces = TRUE
+      )
+    })
+    
+  },
+  fun_args = list(subject = subject, template_name = template), 
+  packages = "ravecore", ensure_init = TRUE
+)
+
+
+
+ravecore::yael_preprocess()
+
+message("Calculating non-linear MNI152")
 
 # get Scanner T1w RAS
 electrode_table <- subject$get_electrode_table()
@@ -99,7 +158,7 @@ process <- raveio::as_yael_process(subject)
 # Get MNI152 coordinates
 mni152 <- process$transform_points_to_template(
   native_ras = scan_ras, 
-  template_name = "mni_icbm152_nlin_asym_09a"
+  template_name = "mni_icbm152_nlin_asym_09b"
 )
 
 # MNI305
