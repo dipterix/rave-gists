@@ -70,7 +70,7 @@ template_names <- c(
 for(template_name in template_names) {
   tryCatch(
     {
-      message("Check template: ", template_name)
+      message("Checking template: ", template_name)
       mapping <- yael$get_template_mapping(template_name = template_name)
       if(!is.null(mapping)) {
         has_mapping <- TRUE
