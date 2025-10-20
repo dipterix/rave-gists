@@ -20,7 +20,14 @@
 #' under `rave-imaging/fs/mri/YBA_aseg.nii.gz`
 #' 
 #' @examples
+#' 
 #' # Example usage:
+#' 
+#' comput_YBA = ravepipeline::load_snippet("image-compute-volumetric-YBA-atlas")
+#' comput_YBA(
+#'   subject_id = "YAEL/Precision012",
+#'   radius = 2, preview = TRUE
+#' )
 #' 
 #' 
 #' END OF DOC
@@ -49,8 +56,48 @@ if(is.null(brain)) {
   stop("Subject 3D models/imaging files are not found: ", subject$subject_id)
 }
 
+# Check if the template mapping exists
+yael <- ravecore::as_yael_process(subject)
+has_mapping <- FALSE
+template_names <- c(
+  "mni_icbm152_nlin_sym_09b",
+  "mni_icbm152_nlin_sym_09a",
+  "mni_icbm152_nlin_sym_09c",
+  "mni_icbm152_nlin_asym_09b",
+  "mni_icbm152_nlin_asym_09a",
+  "mni_icbm152_nlin_asym_09c"
+)
+for(template_name in template_names) {
+  tryCatch(
+    {
+      message("Check template: ", template_name)
+      mapping <- yael$get_template_mapping(template_name = template_name)
+      if(!is.null(mapping)) {
+        has_mapping <- TRUE
+      }
+    },
+    error = function(e) {
+    }
+  )
+  if(has_mapping) {
+    message("Found mapping to ", template_name)
+    break
+  }
+}
+
+if(!has_mapping) {
+  stop("Unable to find non-linear volumetric mapping to MNI152 template. Please run `ravecore::cmd_run_yael_preprocess(...)` first!")
+}
+
+
 # Create atlas from MNI152 -> native brain
-ravecore::generate_atlases_from_template(subject, dirname(atlas_path), as_job = FALSE, surfaces = FALSE)
+ravecore::generate_atlases_from_template(
+  subject,
+  dirname(atlas_path),
+  template_name = template_name,
+  as_job = FALSE,
+  surfaces = FALSE
+)
 
 # Save a copy to rave-imaging/fs/mri/ for visualizations later
 atlas_native <- file.path(subject$imaging_path, "atlases", basename(atlas_path))
