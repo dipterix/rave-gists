@@ -34,10 +34,10 @@
 NULL
 
 # ---- Global inputs -----------------------------------------------------------
-subject_id = "YAEL/Precision012"
-atlas_path = NULL
-radius = 2
-preview = TRUE
+# subject_id = "YAEL/Precision012"
+# atlas_path = NULL
+# radius = 2
+# preview = TRUE
 
 # ---- Code --------------------------------------------------------------------
 # Initialize values
